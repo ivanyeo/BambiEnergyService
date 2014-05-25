@@ -15,16 +15,6 @@ public class BambiEnergyService extends Service {
 	// Clients registered to this Service
 	ArrayList<Messenger> mClients = new ArrayList<Messenger>();
 
-	// Messages to be passed to the Service by Clients for processing
-	static final int MESSAGE_REGISTER_CLIENT 	= 1;
-	static final int MESSAGE_UNREGISTER_CLIENT 	= 2;
-	static final int MESSAGE_REGISTER_SUCCESS	= 3;
-	static final int MESSAGE_UNREGISTER_SUCCESS	= 4;
-	
-	// Supported Service Functions
-	static final int MESSAGE_SEND_EMAIL			= 11;
-//	static final int MESSAGE_REGISTER_SUCCESS	= 3;
-
 	@Override
 	public void onCreate() {
 		G.Log("BambiEnergyService::onCreate()");
@@ -66,25 +56,25 @@ public class BambiEnergyService extends Service {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case MESSAGE_REGISTER_CLIENT:
+			case BambiLib.MESSAGE_REGISTER_CLIENT:
 					// Add Client to list
 					mClients.add(msg.replyTo);
 					
 					// Respond registration successful to client
 					try {
-						msg.replyTo.send(Message.obtain(null, MESSAGE_REGISTER_SUCCESS));
+						msg.replyTo.send(Message.obtain(null, BambiLib.MESSAGE_REGISTER_SUCCESS));
 					} catch (RemoteException e) {
 						// Client dead
 						mClients.remove(msg.replyTo);
 					}
 				break;
-			case MESSAGE_UNREGISTER_CLIENT:
+			case BambiLib.MESSAGE_UNREGISTER_CLIENT:
 					// Remove Client from list
 					mClients.remove(msg.replyTo);
 					
 					// Respond unregistration successful to client
 					try {
-						msg.replyTo.send(Message.obtain(null, MESSAGE_UNREGISTER_SUCCESS));
+						msg.replyTo.send(Message.obtain(null, BambiLib.MESSAGE_UNREGISTER_SUCCESS));
 					} catch (RemoteException e) {
 						// Client dead
 						mClients.remove(msg.replyTo);

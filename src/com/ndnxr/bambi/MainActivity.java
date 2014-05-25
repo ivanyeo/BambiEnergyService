@@ -120,7 +120,7 @@ public class MainActivity extends ActionBarActivity {
 			if (mBambiServiceMessenger != null) {
 				try {
 					// Send Message to BambiEnergy Service to UNREGISTER_CLIENT
-					Message msg = Message.obtain(null, BambiEnergyService.MESSAGE_UNREGISTER_CLIENT);
+					Message msg = Message.obtain(null, BambiLib.MESSAGE_UNREGISTER_CLIENT);
 					
 					msg.replyTo = mClientMessenger;
 					
@@ -154,7 +154,7 @@ public class MainActivity extends ActionBarActivity {
 			
 			// Make request to register client
 			try {
-				Message msg = Message.obtain(null, BambiEnergyService.MESSAGE_REGISTER_CLIENT);
+				Message msg = Message.obtain(null, BambiLib.MESSAGE_REGISTER_CLIENT);
 				msg.replyTo = mClientMessenger;
 				mBambiServiceMessenger.send(msg);
 			} catch (RemoteException e) {
@@ -185,10 +185,10 @@ public class MainActivity extends ActionBarActivity {
 		@Override 
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case BambiEnergyService.MESSAGE_REGISTER_SUCCESS:
+			case BambiLib.MESSAGE_REGISTER_SUCCESS:
 					G.Log("ClientHandler::handleMessage(): MESSAGE_REGISTER_SUCCESS");
 				break;
-			case BambiEnergyService.MESSAGE_UNREGISTER_SUCCESS:
+			case BambiLib.MESSAGE_UNREGISTER_SUCCESS:
 					G.Log("ClientHandler::handleMessage(): MESSAGE_UNREGISTER_SUCCESS");
 				break;
 			default:
