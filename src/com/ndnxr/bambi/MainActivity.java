@@ -1,5 +1,12 @@
 package com.ndnxr.bambi;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -86,31 +93,72 @@ public class MainActivity extends ActionBarActivity {
 			}
 		}.start();
 	}
-	
+
 	public void bind_service2(View v) {
 		bindBambiService();
 	}
-	
+
 	public void unbind_service(View v) {
 		unbindBambiService();
 	}
-	
+
+	private static final String APP_FILENAME = "BAMBI_STORAGE_FILE";
+
+	public void write_file(View v) {
+		try {
+			FileOutputStream fos = this.openFileOutput(APP_FILENAME,
+					Context.MODE_PRIVATE);
+			ObjectOutputStream os = new ObjectOutputStream(fos);
+
+			Email email = new Email("to", "from", "subject", "message");
+
+			os.writeObject(email);
+			os.close();
+			
+			G.Log("Write success");
+		} catch (FileNotFoundException e) {
+			G.Log("Error: " + e.getMessage());
+		} catch (IOException e) {
+			G.Log("Error: " + e.getMessage());
+		}
+
+	}
+
+	public void read_file(View v) {
+		try {
+			FileInputStream fis = this.openFileInput(APP_FILENAME);
+			ObjectInputStream is = new ObjectInputStream(fis);
+			Object o =  is.readObject();
+			
+			if (o instanceof Email) {
+				Toast.makeText(this, "Woohoo! Instance of email!", Toast.LENGTH_LONG).show();
+			}
+			
+			is.close();
+		} catch (FileNotFoundException e) {
+			G.Log(e.getMessage());
+		} catch (IOException e) {
+			G.Log(e.getMessage());
+		} catch (ClassNotFoundException e) {
+			G.Log(e.getMessage());
+		}
+	}
+
 	/**
 	 * Method that binds to the BambiEnergyService.
 	 */
 	private void bindBambiService() {
 		// Bind to Service
-		this.bindService(
-				new Intent(this, BambiEnergyService.class), 
+		this.bindService(new Intent(this, BambiEnergyService.class),
 				mServiceConnection, Context.BIND_AUTO_CREATE);
-		
+
 		// Set bound flag
 		mIsBambiServiceBound = true;
-		
+
 		// Output Log
 		G.Log("MainActivity::bindBambiService()");
 	}
-	
+
 	/**
 	 * Method that unbinds from the BambiEnergyService.
 	 */
@@ -120,47 +168,49 @@ public class MainActivity extends ActionBarActivity {
 			if (mBambiServiceMessenger != null) {
 				try {
 					// Send Message to BambiEnergy Service to UNREGISTER_CLIENT
-					Message msg = Message.obtain(null, BambiLib.MESSAGE_UNREGISTER_CLIENT);
-					
+					Message msg = Message.obtain(null,
+							BambiLib.MESSAGE_UNREGISTER_CLIENT);
+
 					msg.replyTo = mClientMessenger;
-					
+
 					mBambiServiceMessenger.send(msg);
 				} catch (RemoteException e) {
 					// Service has crashed, nothing to do here
-					G.Log("MainActivity::unbindBambiService() Error: " + e); 
+					G.Log("MainActivity::unbindBambiService() Error: " + e);
 				}
 			}
-			
+
 			// Release connection
 			this.unbindService(mServiceConnection);
 			mIsBambiServiceBound = false;
-			
+
 			G.Log("MainActivity::unbindBambiService(): Success");
 		}
 	}
 
 	/** Messenger connection to BambiEnergyService */
 	private Messenger mBambiServiceMessenger = null;
-	
+
 	/** Flag if client is connected to BambiEnergyService */
 	private boolean mIsBambiServiceBound = false;
-	
+
 	/** Client ServiceConnection to BambiEnergyService */
 	private ServiceConnection mServiceConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName className, IBinder service) {
 			// Bound to BambiEnergyService, establish Messenger to the Service
 			mBambiServiceMessenger = new Messenger(service);
-			
+
 			// Make request to register client
 			try {
-				Message msg = Message.obtain(null, BambiLib.MESSAGE_REGISTER_CLIENT);
+				Message msg = Message.obtain(null,
+						BambiLib.MESSAGE_REGISTER_CLIENT);
 				msg.replyTo = mClientMessenger;
 				mBambiServiceMessenger.send(msg);
 			} catch (RemoteException e) {
-				// If Service crashes, nothing to do here 
+				// If Service crashes, nothing to do here
 			}
-			
+
 			G.Log("mServiceConnection::onServiceConnected()");
 		}
 
@@ -169,27 +219,27 @@ public class MainActivity extends ActionBarActivity {
 			// In event of unexpected disconnection with the Service.
 			// Not expecting to get here.
 			mServiceConnection = null;
-			//mIsBambiServiceBound = false;
-			
+			// mIsBambiServiceBound = false;
+
 			G.Log("mConnection::onServiceDisconnected()");
 		}
 	};
-	
+
 	/** Client Message Handler */
 	final Messenger mClientMessenger = new Messenger(new ClientHandler());
-	
+
 	/**
-	 * Client Message Handler Class 
+	 * Client Message Handler Class
 	 */
 	class ClientHandler extends Handler {
-		@Override 
+		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case BambiLib.MESSAGE_REGISTER_SUCCESS:
-					G.Log("ClientHandler::handleMessage(): MESSAGE_REGISTER_SUCCESS");
+				G.Log("ClientHandler::handleMessage(): MESSAGE_REGISTER_SUCCESS");
 				break;
 			case BambiLib.MESSAGE_UNREGISTER_SUCCESS:
-					G.Log("ClientHandler::handleMessage(): MESSAGE_UNREGISTER_SUCCESS");
+				G.Log("ClientHandler::handleMessage(): MESSAGE_UNREGISTER_SUCCESS");
 				break;
 			default:
 				super.handleMessage(msg);
