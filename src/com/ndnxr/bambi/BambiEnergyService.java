@@ -3,11 +3,15 @@ package com.ndnxr.bambi;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
 
 public class BambiEnergyService extends Service {
 
 	final String TAG = "-=]MyService[=-";
+	
+	@Override
+	public void onCreate() {
+		G.Log("BambiEnergyService::onCreate()");
+	}
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -24,11 +28,6 @@ public class BambiEnergyService extends Service {
 		// TODO for communication return IBinder implementation
 		G.Log("BambiEnergyService::onBind()");
 		return null;
-	}
-	
-	@Override
-	public void onCreate() {
-		G.Log("BambiEnergyService::onCreate()");
 	}
 	
 	@Override
