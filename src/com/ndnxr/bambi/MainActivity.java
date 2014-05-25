@@ -5,7 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
@@ -65,8 +69,8 @@ public class MainActivity extends ActionBarActivity {
 		Intent i = new Intent(this, BambiEnergyService.class);
 		i.putExtra("KEY1", "Value to be used by the service");
 		G.Log("MainActivity::bind_service()");
-		this.bindService(i, mConnection, Context.BIND_AUTO_CREATE);
-		
+		this.bindService(i, mServiceConnection, Context.BIND_AUTO_CREATE);
+
 		final MainActivity outside = this;
 		new Thread() {
 			public void run() {
@@ -78,32 +82,121 @@ public class MainActivity extends ActionBarActivity {
 					e.printStackTrace();
 				}
 				G.Log("Unbinding service");
-				outside.unbindService(mConnection);
+				outside.unbindService(mServiceConnection);
 			}
 		}.start();
 	}
 	
-	// Service Items
-//	BambiEnergyService 
-	/** Defines callbacks for service binding, passed to bindService() */
-	private ServiceConnection mConnection = new ServiceConnection() {
+	public void bind_service2(View v) {
+		bindBambiService();
+	}
+	
+	public void unbind_service(View v) {
+		unbindBambiService();
+	}
+	
+	/**
+	 * Method that binds to the BambiEnergyService.
+	 */
+	private void bindBambiService() {
+		// Bind to Service
+		this.bindService(
+				new Intent(this, BambiEnergyService.class), 
+				mServiceConnection, Context.BIND_AUTO_CREATE);
+		
+		// Set bound flag
+		mIsBambiServiceBound = true;
+		
+		// Output Log
+		G.Log("MainActivity::bindBambiService()");
+	}
+	
+	/**
+	 * Method that unbinds from the BambiEnergyService.
+	 */
+	private void unbindBambiService() {
+		// Unregister Service if it has been bound
+		if (mIsBambiServiceBound) {
+			if (mBambiServiceMessenger != null) {
+				try {
+					// Send Message to BambiEnergy Service to UNREGISTER_CLIENT
+					Message msg = Message.obtain(null, BambiEnergyService.MESSAGE_UNREGISTER_CLIENT);
+					
+					msg.replyTo = mClientMessenger;
+					
+					mBambiServiceMessenger.send(msg);
+				} catch (RemoteException e) {
+					// Service has crashed, nothing to do here
+					G.Log("MainActivity::unbindBambiService() Error: " + e); 
+				}
+			}
+			
+			// Release connection
+			this.unbindService(mServiceConnection);
+			mIsBambiServiceBound = false;
+			
+			G.Log("MainActivity::unbindBambiService(): Success");
+		}
+	}
 
+	/** Messenger connection to BambiEnergyService */
+	private Messenger mBambiServiceMessenger = null;
+	
+	/** Flag if client is connected to BambiEnergyService */
+	private boolean mIsBambiServiceBound = false;
+	
+	/** Client ServiceConnection to BambiEnergyService */
+	private ServiceConnection mServiceConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName className, IBinder service) {
-			// We've bound to LocalService, cast the IBinder and get
-			// LocalService instance
-//			LocalBinder binder = (LocalBinder) service;
-//			mService = binder.getService();
-//			mBound = true;
-			G.Log("mConnection::onServiceConnected()");
+			// Bound to BambiEnergyService, establish Messenger to the Service
+			mBambiServiceMessenger = new Messenger(service);
+			
+			// Make request to register client
+			try {
+				Message msg = Message.obtain(null, BambiEnergyService.MESSAGE_REGISTER_CLIENT);
+				msg.replyTo = mClientMessenger;
+				mBambiServiceMessenger.send(msg);
+			} catch (RemoteException e) {
+				// If Service crashes, nothing to do here 
+			}
+			
+			G.Log("mServiceConnection::onServiceConnected()");
 		}
 
 		@Override
 		public void onServiceDisconnected(ComponentName arg0) {
-//			mBound = false;
+			// In event of unexpected disconnection with the Service.
+			// Not expecting to get here.
+			mServiceConnection = null;
+			//mIsBambiServiceBound = false;
+			
 			G.Log("mConnection::onServiceDisconnected()");
 		}
 	};
+	
+	/** Client Message Handler */
+	final Messenger mClientMessenger = new Messenger(new ClientHandler());
+	
+	/**
+	 * Client Message Handler Class 
+	 */
+	class ClientHandler extends Handler {
+		@Override 
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case BambiEnergyService.MESSAGE_REGISTER_SUCCESS:
+					G.Log("ClientHandler::handleMessage(): MESSAGE_REGISTER_SUCCESS");
+				break;
+			case BambiEnergyService.MESSAGE_UNREGISTER_SUCCESS:
+					G.Log("ClientHandler::handleMessage(): MESSAGE_UNREGISTER_SUCCESS");
+				break;
+			default:
+				super.handleMessage(msg);
+				break;
+			}
+		}
+	}
 
 	/**
 	 * A placeholder fragment containing a simple view.
