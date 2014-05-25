@@ -85,7 +85,6 @@ public class MainActivity extends ActionBarActivity {
 	
 	// Service Items
 //	BambiEnergyService 
-
 	/** Defines callbacks for service binding, passed to bindService() */
 	private ServiceConnection mConnection = new ServiceConnection() {
 
