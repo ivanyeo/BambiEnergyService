@@ -28,6 +28,8 @@ public class BambiEnergyService extends Service {
 
 	@Override
 	public void onCreate() {
+		// TODO Load Service Tasks here
+		
 		G.Log("BambiEnergyService::onCreate()");
 	}
 
@@ -52,6 +54,8 @@ public class BambiEnergyService extends Service {
 
 	@Override
 	public void onDestroy() {
+		// Save Service Tasks here
+		
 		G.Log("BambiEnergyService::onDestroy()");
 	}
 
