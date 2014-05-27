@@ -1,19 +1,30 @@
 package com.ndnxr.bambi;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.widget.Toast;
 
 public class BambiEnergyService extends Service {
 
+	// Configuration
+	private static final String APP_STORAGE_FILENAME = "BAMBI_STORAGE_FILE";
+	
 	// Clients registered to this Service
-	ArrayList<Messenger> mClients = new ArrayList<Messenger>();
+	private ArrayList<Messenger> mClients = new ArrayList<Messenger>();
 
 	@Override
 	public void onCreate() {
@@ -22,12 +33,13 @@ public class BambiEnergyService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		G.Log("BambiEnergyService::onStartCommand()");
+		throw new RuntimeException("BambiEnergyService is designed to be bound to and not run by invoking startService().");
+		//G.Log("BambiEnergyService::onStartCommand()");
 
 		// Setting:
 		// If the process is killed with no remaining start commands to
 		// deliver, then the service will be stopped instead of restarted
-		return Service.START_NOT_STICKY;
+		//return Service.START_NOT_STICKY;
 	}
 
 	@Override
@@ -86,6 +98,57 @@ public class BambiEnergyService extends Service {
 					super.handleMessage(msg);
 				break;
 			}
+		}
+	}
+	
+	/**
+	 * Function that saves all Tasks to the persistent file storage. This function
+	 * is invoked when the Service is destroyed or unloaded.
+	 */
+	private void saveBambiTasks() {
+		// TODO Write actual code for this function
+		try {
+			FileOutputStream fos = this.openFileOutput(APP_STORAGE_FILENAME,
+					Context.MODE_PRIVATE);
+			ObjectOutputStream os = new ObjectOutputStream(fos);
+
+			Email email = new Email("to", "from", "subject", "message");
+
+			os.writeObject(email);
+			os.close();
+			
+			G.Log("Write success");
+		} catch (FileNotFoundException e) {
+			G.Log("Error: " + e.getMessage());
+		} catch (IOException e) {
+			G.Log("Error: " + e.getMessage());
+		}		
+	}
+	
+	/**
+	 * Function that loads all Tasks from the persistent storage when the service is
+	 * loaded.
+	 */
+	private void loadBambiTasks() {
+		// TODO Clean up this function for actual use
+		try {
+			FileInputStream fis = this.openFileInput(APP_STORAGE_FILENAME);
+			ObjectInputStream is = new ObjectInputStream(fis);
+			Object o =  is.readObject();
+			
+			if (o instanceof Email) {
+				G.Log("Woohoo! Instance of email!");
+			} else {
+				G.Log("Nope, couldn't make out what file object was read in.");
+			}
+			
+			is.close();
+		} catch (FileNotFoundException e) {
+			G.Log(e.getMessage());
+		} catch (IOException e) {
+			G.Log(e.getMessage());
+		} catch (ClassNotFoundException e) {
+			G.Log(e.getMessage());
 		}
 	}
 }
