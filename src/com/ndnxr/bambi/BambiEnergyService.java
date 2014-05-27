@@ -16,7 +16,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.widget.Toast;
 
 public class BambiEnergyService extends Service {
 
@@ -84,6 +83,7 @@ public class BambiEnergyService extends Service {
 						mClients.remove(msg.replyTo);
 					}
 				break;
+				
 			case BambiLib.MESSAGE_UNREGISTER_CLIENT:
 					// Remove Client from list
 					mClients.remove(msg.replyTo);
@@ -97,6 +97,18 @@ public class BambiEnergyService extends Service {
 					}
 				break;
 
+			case BambiLib.MESSAGE_SEND_EMAIL:
+				G.Log("WE GET TO SEND THE EMAIL!!");
+				// Extract Email object through IPC 
+				// Set class loader to be used
+				msg.getData().setClassLoader(Email.class.getClassLoader());
+				
+				// Get actual Email object
+				Email email = (Email) msg.getData().getParcelable("email");
+				
+				G.Log("BAMBISERVICE, Email: " + email.toString());
+				break;
+				
 			default:
 					// Pass on to the super class
 					super.handleMessage(msg);
