@@ -59,7 +59,7 @@ public class MainActivity extends ActionBarActivity {
 	}
 
 	public void toast_message(View v) {
-		// TODO Auto-generated method stub
+		// TODO Remove this block of code
 		Toast.makeText(this, "Hello!", Toast.LENGTH_LONG).show();
 	}
 
@@ -73,6 +73,7 @@ public class MainActivity extends ActionBarActivity {
 	}
 
 	public void bind_service(View v) {
+		// TODO: Remove this block of code
 		Intent i = new Intent(this, BambiEnergyService.class);
 		i.putExtra("KEY1", "Value to be used by the service");
 		G.Log("MainActivity::bind_service()");
@@ -85,7 +86,6 @@ public class MainActivity extends ActionBarActivity {
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				G.Log("Unbinding service");
@@ -102,46 +102,14 @@ public class MainActivity extends ActionBarActivity {
 		unbindBambiService();
 	}
 
-	private static final String APP_FILENAME = "BAMBI_STORAGE_FILE";
+	
 
 	public void write_file(View v) {
-		try {
-			FileOutputStream fos = this.openFileOutput(APP_FILENAME,
-					Context.MODE_PRIVATE);
-			ObjectOutputStream os = new ObjectOutputStream(fos);
-
-			Email email = new Email("to", "from", "subject", "message");
-
-			os.writeObject(email);
-			os.close();
-			
-			G.Log("Write success");
-		} catch (FileNotFoundException e) {
-			G.Log("Error: " + e.getMessage());
-		} catch (IOException e) {
-			G.Log("Error: " + e.getMessage());
-		}
-
+		G.Log("Nothing done here. Function to be removed.");
 	}
 
 	public void read_file(View v) {
-		try {
-			FileInputStream fis = this.openFileInput(APP_FILENAME);
-			ObjectInputStream is = new ObjectInputStream(fis);
-			Object o =  is.readObject();
-			
-			if (o instanceof Email) {
-				Toast.makeText(this, "Woohoo! Instance of email!", Toast.LENGTH_LONG).show();
-			}
-			
-			is.close();
-		} catch (FileNotFoundException e) {
-			G.Log(e.getMessage());
-		} catch (IOException e) {
-			G.Log(e.getMessage());
-		} catch (ClassNotFoundException e) {
-			G.Log(e.getMessage());
-		}
+		G.Log("Nothing done here. Function to be removed.");
 	}
 
 	/**
