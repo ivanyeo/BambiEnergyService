@@ -103,7 +103,7 @@ public class Bambi extends ActionBarActivity {
 		Email email = new Email("to@to.com", "from@from.com", "subject", "message here");
 		
 		// Create a task
-		Task task = new Task(TASK_TYPE.EMAIL, URGENCY.NOW, null, email);
+		Task task = new Task(TASK_TYPE.EMAIL, URGENCY.URGENT, null, email);
 		
 		// Create instance od BambiLib
 		BambiLib bambiLib = new BambiLib(this);
