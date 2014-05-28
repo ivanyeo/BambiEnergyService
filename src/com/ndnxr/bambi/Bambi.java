@@ -105,11 +105,14 @@ public class Bambi extends ActionBarActivity {
 		// Create a task
 		Task task = new Task(TASK_TYPE.EMAIL, URGENCY.URGENT, null, email);
 		
-		// Create instance od BambiLib
+		// Create instance of BambiLib
 		BambiLib bambiLib = new BambiLib(this);
 		
 		// Send email
 		boolean output = bambiLib.sendEmail(task);
+		
+		// Shutdown Lib
+		bambiLib.shutdown();
 		
 		G.Log("Here we go: " + output);
 		G.Log("send_email() DONE!");
