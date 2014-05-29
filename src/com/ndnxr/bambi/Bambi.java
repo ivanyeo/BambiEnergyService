@@ -1,8 +1,9 @@
 package com.ndnxr.bambi;
 
-import com.ndnxr.bambi.BambiLib.TASK_TYPE;
-import com.ndnxr.bambi.BambiLib.URGENCY;
+import java.util.Calendar;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +22,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import com.ndnxr.bambi.BambiLib.TASK_TYPE;
+import com.ndnxr.bambi.BambiLib.URGENCY;
 
 public class Bambi extends ActionBarActivity {
 
@@ -52,6 +56,24 @@ public class Bambi extends ActionBarActivity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	public void set_alarm(View v){
+		AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+		Intent intent = new Intent(getBaseContext(), BambiAlarmReceiver.class);
+		PendingIntent pendingIntent = PendingIntent
+				.getBroadcast(this, 0, intent,
+						PendingIntent.FLAG_UPDATE_CURRENT);
+
+		G.Log("Setup the alarm");
+
+		// Getting current time and add the seconds in it
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.SECOND, 8);
+
+		alarmManager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
+				pendingIntent);
+
 	}
 
 	public void toast_message(View v) {

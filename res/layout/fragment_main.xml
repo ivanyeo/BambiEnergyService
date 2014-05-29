@@ -87,4 +87,13 @@
         android:onClick="send_email"
         android:text="Send Email" />
 
+    <Button
+        android:id="@+id/button9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/button8"
+        android:layout_below="@+id/button8"
+        android:onClick="set_alarm"
+        android:text="Set Alarm" />
+
 </RelativeLayout>

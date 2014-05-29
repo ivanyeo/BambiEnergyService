@@ -29,6 +29,10 @@
             android:icon="@drawable/ic_launcher"
             android:label="@string/service_name" >
         </service>
+        
+        <receiver 
+            android:name=".BambiAlarmReceiver">
+        </receiver>
     </application>
 
 </manifest>
