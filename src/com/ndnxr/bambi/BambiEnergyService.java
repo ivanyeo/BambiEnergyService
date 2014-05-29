@@ -20,7 +20,7 @@ import android.os.RemoteException;
 public class BambiEnergyService extends Service {
 
 	// Configuration
-	private static final String APP_STORAGE_FILENAME = "BAMBI_STORAGE_FILE";
+	private static final String SERVICE_STORAGE_FILENAME = "BAMBI_SERVICE_STORAGE_FILE";
 	
 	// Clients registered to this Service
 	private ArrayList<Messenger> mClients = new ArrayList<Messenger>();
@@ -124,7 +124,7 @@ public class BambiEnergyService extends Service {
 	private void saveBambiTasks() {
 		// TODO Write actual code for this function
 		try {
-			FileOutputStream fos = this.openFileOutput(APP_STORAGE_FILENAME,
+			FileOutputStream fos = this.openFileOutput(SERVICE_STORAGE_FILENAME,
 					Context.MODE_PRIVATE);
 			ObjectOutputStream os = new ObjectOutputStream(fos);
 
@@ -148,7 +148,7 @@ public class BambiEnergyService extends Service {
 	private void loadBambiTasks() {
 		// TODO Clean up this function for actual use
 		try {
-			FileInputStream fis = this.openFileInput(APP_STORAGE_FILENAME);
+			FileInputStream fis = this.openFileInput(SERVICE_STORAGE_FILENAME);
 			ObjectInputStream is = new ObjectInputStream(fis);
 			Object o =  is.readObject();
 			
