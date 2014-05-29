@@ -25,6 +25,9 @@ public class BambiEnergyService extends Service {
 	// Clients registered to this Service
 	private ArrayList<Messenger> mClients = new ArrayList<Messenger>();
 
+	// Private startId so that Service is not accidentally stopped when stopSelf(startId) is invoked
+	private static int startId = 0;
+	
 	@Override
 	public void onCreate() {
 		// TODO Load Service Tasks here
@@ -34,9 +37,39 @@ public class BambiEnergyService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		throw new RuntimeException("BambiEnergyService is designed to be bound to and not run by invoking startService().");
-		//G.Log("BambiEnergyService::onStartCommand()");
+		//throw new RuntimeException("BambiEnergyService is designed to be bound to and not run by invoking startService().");
+		G.Log("BambiEnergyService::onStartCommand()");
+		
+		// Update startId for use in stopSelf(startId)
+		synchronized (BambiEnergyService.class) {
+			BambiEnergyService.startId = startId;
+		}
+		
+		// Get Intent message and check against BambiAlarm messages
+		int message = intent.getIntExtra(BambiAlarm.MESSAGE_ALARM, 0);
 
+		switch (message) {
+		case BambiAlarm.MESSAGE_ALARM_ARRIVED:
+			// TODO Process Tasks that have hit their deadlines
+			break;
+		case 0:
+			// No such key in Intent: Incorrect message
+			break;
+		default:
+			// No such message, do nothing
+			break;
+		}	
+		// Update startId
+		synchronized (BambiEnergyService.class) {
+			BambiEnergyService.startId = startId;
+		}
+
+		// Setting:
+		// If the process is killed with no remaining start commands to
+		// deliver, then the service will be scheduled to start with the last 
+		// intent being re-delivered.
+		return Service.START_REDELIVER_INTENT;
+		
 		// Setting:
 		// If the process is killed with no remaining start commands to
 		// deliver, then the service will be stopped instead of restarted
@@ -53,9 +86,27 @@ public class BambiEnergyService extends Service {
 
 	@Override
 	public void onDestroy() {
-		// Save Service Tasks here
+		// TODO Save Service Tasks here
 		
 		G.Log("BambiEnergyService::onDestroy()");
+	}
+	
+	/**
+	 * Method that invokes Service.stopSelf(startId) for services that have been started
+	 * with Context.startService(); startId is needed in event of concurrent invocations
+	 * of startService() so that services aren't stop without the most recent startId 
+	 * being processed.
+	 */
+	private void bambiStopSelf() {
+		int startId = 0;
+		
+		// Get current startId
+		synchronized (BambiEnergyService.class) {
+			startId = BambiEnergyService.startId;
+		}
+		
+		// Invoke stop
+		BambiEnergyService.this.stopSelf(startId);
 	}
 
 	/**

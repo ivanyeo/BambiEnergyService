@@ -58,9 +58,14 @@ public class Bambi extends ActionBarActivity {
 		return super.onOptionsItemSelected(item);
 	}
 	
-	public void set_alarm(View v){
+	public void set_alarm(View v) {
+		// Get the AlarmManager
 		AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+		
+		// Create Intent
 		Intent intent = new Intent(getBaseContext(), BambiAlarmReceiver.class);
+		intent.putExtra(BambiAlarm.MESSAGE_ALARM, BambiAlarm.MESSAGE_ALARM_ARRIVED);
+		
 		PendingIntent pendingIntent = PendingIntent
 				.getBroadcast(this, 0, intent,
 						PendingIntent.FLAG_UPDATE_CURRENT);
@@ -69,7 +74,7 @@ public class Bambi extends ActionBarActivity {
 
 		// Getting current time and add the seconds in it
 		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.SECOND, 8);
+		cal.add(Calendar.SECOND, 3);
 
 		alarmManager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
 				pendingIntent);
