@@ -1,13 +1,15 @@
 package com.ndnxr.bambi;
 
 import java.util.Calendar;
-
+import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -16,13 +18,15 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.telephony.CellInfoGsm;
+import android.telephony.CellSignalStrengthGsm;
+import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
 import com.ndnxr.bambi.BambiLib.TASK_TYPE;
 import com.ndnxr.bambi.BambiLib.URGENCY;
 
@@ -151,6 +155,39 @@ public class Bambi extends ActionBarActivity {
 
 	public void read_file(View v) {
 		G.Log("Nothing done here. Function to be removed.");
+	}
+	
+	public void get_wifi_strength(View v) {
+		// Get WifiManager from System Service
+		WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+		
+		// Usually between 0 to -100 dBm; values closer to 0 means signal strength is stronger.
+		int signalStrength = wifiManager.getConnectionInfo().getRssi();
+		
+		G.Log("Wifi RSSI: " + signalStrength);
+	}
+	
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+	public void get_mobile_strength(View v) {
+		// Local Variable
+		int signalStrength = 0;
+		
+		// Get current API Level
+		int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+		
+		// Execute necessary API Level
+		if (currentapiVersion >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1){
+		    // API Level >= 17 to use getAllCellInfo()
+			TelephonyManager telephonyManager = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+			CellInfoGsm cellinfogsm = (CellInfoGsm) telephonyManager.getAllCellInfo().get(0);
+			CellSignalStrengthGsm cellSignalStrengthGsm = cellinfogsm.getCellSignalStrength();
+			signalStrength = cellSignalStrengthGsm.getDbm();
+		} else{
+		    // API Level < 17
+			
+		}
+		
+		G.Log("cell RSSI: " + signalStrength);
 	}
 
 	/**

@@ -17,9 +17,11 @@ public class BambiWifiReceiver extends BroadcastReceiver {
 		// Check Connection
 	    if (action.equals(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION)) {
 	        if (intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, false)){
+	        	G.Log("BambiWifiReceiver: Wifi Connected!");
 	        	// Wifi Connected
 	        	// TODO startService() and send all normal and scheduled Tasks
 	        } else {
+	        	G.Log("BambiWifiReceiver: Wifi Disonnected!");
 	            // Wifi Disconnected
 	        }
 	    }
