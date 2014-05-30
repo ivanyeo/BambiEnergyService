@@ -1,6 +1,7 @@
 package com.ndnxr.bambi;
 
 import java.util.Calendar;
+
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -20,6 +21,8 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.telephony.CellInfoGsm;
 import android.telephony.CellSignalStrengthGsm;
+import android.telephony.PhoneStateListener;
+import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,6 +30,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
 import com.ndnxr.bambi.BambiLib.TASK_TYPE;
 import com.ndnxr.bambi.BambiLib.URGENCY;
 
@@ -167,10 +171,16 @@ public class Bambi extends ActionBarActivity {
 		G.Log("Wifi RSSI: " + signalStrength);
 	}
 	
+	class SS {
+		public int signalStrength = 0;
+	}
+	
+	public final SS signalStrength = new SS();
+	
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	public void get_mobile_strength(View v) {
 		// Local Variable
-		int signalStrength = 0;
+		//int signalStrength = 0;
 		
 		// Get current API Level
 		int currentapiVersion = android.os.Build.VERSION.SDK_INT;
@@ -181,15 +191,58 @@ public class Bambi extends ActionBarActivity {
 			TelephonyManager telephonyManager = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
 			CellInfoGsm cellinfogsm = (CellInfoGsm) telephonyManager.getAllCellInfo().get(0);
 			CellSignalStrengthGsm cellSignalStrengthGsm = cellinfogsm.getCellSignalStrength();
-			signalStrength = cellSignalStrengthGsm.getDbm();
+			signalStrength.signalStrength = cellSignalStrengthGsm.getDbm();
+			
+			G.Log("Cell Signal Strength: " + signalStrength.signalStrength);
 		} else{
 		    // API Level < 17
+			TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 			
+//			AndroidPhoneStateListener phoneStateListener = new AndroidPhoneStateListener (this);
+			PhoneStateListener phoneStateListener = new PhoneStateListener() {
+
+		        @Override
+		        public void onSignalStrengthsChanged(SignalStrength ss) {
+		            super.onSignalStrengthsChanged(ss);
+		            if (ss.isGsm()) {
+		            	// TODO Check  TS 27.007 8.5 for verification of conversion
+		                if (ss.getGsmSignalStrength() != 99)
+		                    signalStrength.signalStrength = ss.getGsmSignalStrength() * 2 - 113;
+		                else
+		                    signalStrength.signalStrength = ss.getGsmSignalStrength();
+		            } else {
+		                signalStrength.signalStrength = ss.getCdmaDbm();
+		            }
+		            
+		            G.Log("Cell Signal Strength: " + signalStrength.signalStrength);
+		        }
+			};
+			telephonyManager.listen(phoneStateListener,      
+					PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+			    
 		}
 		
-		G.Log("cell RSSI: " + signalStrength);
+		//G.Log("Cell Signal Strength: " + signalStrength.signalStrength);
 	}
+	/*
+	public class AndroidPhoneStateListener extends PhoneStateListener {
+        public static int signalStrengthValue;
 
+        @Override
+        public void onSignalStrengthsChanged(SignalStrength signalStrength) {
+            super.onSignalStrengthsChanged(signalStrength);
+            if (signalStrength.isGsm()) {
+                if (signalStrength.getGsmSignalStrength() != 99)
+                    signalStrengthValue = signalStrength.getGsmSignalStrength() * 2 - 113;
+                else
+                    signalStrengthValue = signalStrength.getGsmSignalStrength();
+            } else {
+                signalStrengthValue = signalStrength.getCdmaDbm();
+            }
+        }
+
+    }
+*/
 	/**
 	 * Method that binds to the BambiEnergyService.
 	 */

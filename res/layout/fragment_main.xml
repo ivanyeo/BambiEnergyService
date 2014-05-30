@@ -106,4 +106,13 @@
         android:onClick="get_wifi_strength"
         android:text="Wifi Strength" />
 
+    <Button
+        android:id="@+id/button11"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button2"
+        android:layout_toRightOf="@+id/button7"
+        android:onClick="get_mobile_strength"
+        android:text="Cell Strength" />
+
 </RelativeLayout>
