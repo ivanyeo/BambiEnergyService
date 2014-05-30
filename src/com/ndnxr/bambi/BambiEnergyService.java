@@ -1,5 +1,6 @@
 package com.ndnxr.bambi;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -19,8 +20,15 @@ import android.os.RemoteException;
 
 public class BambiEnergyService extends Service {
 
-	// Configuration
-	private static final String SERVICE_STORAGE_FILENAME = "BAMBI_SERVICE_STORAGE_FILE";
+	// Configurations
+	// File names for storage
+	private static final String SERVICE_STORAGE_FILENAME = "FILE_NORMAL_TASKS";
+	private static final String FILENAME_NORMAL_TASKS = "FILE_NORMAL_TASKS";
+	private static final String FILENAME_SCHEDULE_TASKS = "FILE_SCHEDULE_TASKS";
+	
+	// Private Tasks to keep track of
+	private ArrayList<Task> normalTaskList = null;
+	private ArrayList<Task> scheduleTaskList = null;
 	
 	// Clients registered to this Service
 	private ArrayList<Messenger> mClients = new ArrayList<Messenger>();
@@ -30,7 +38,8 @@ public class BambiEnergyService extends Service {
 	
 	@Override
 	public void onCreate() {
-		// TODO Load Service Tasks here
+		// Load Bambi Tasks
+		loadBambiTasks();
 		
 		G.Log("BambiEnergyService::onCreate()");
 	}
@@ -51,18 +60,20 @@ public class BambiEnergyService extends Service {
 		switch (message) {
 		case BambiAlarm.MESSAGE_ALARM_ARRIVED:
 			// TODO Process Tasks that have hit their deadlines
+			// TODO Use bambiStopSelf()
+			//bambiStopSelf();
 			break;
 		case 0:
-			// No such key in Intent: Incorrect message
+			G.Log("BambiEnergyService::onStartCommand(): message - 0 received.");
+			// No such key in Intent: Incorrect message; stop service
+			bambiStopSelf();
 			break;
 		default:
-			// No such message, do nothing
+			G.Log("BambiEnergyService::onStartCommand(): Invalid message received.");
+			// No such message, do nothing but stop service
+			bambiStopSelf();
 			break;
 		}	
-		// Update startId
-		synchronized (BambiEnergyService.class) {
-			BambiEnergyService.startId = startId;
-		}
 
 		// Setting:
 		// If the process is killed with no remaining start commands to
@@ -98,6 +109,7 @@ public class BambiEnergyService extends Service {
 	 * being processed.
 	 */
 	private void bambiStopSelf() {
+		// Local Variable
 		int startId = 0;
 		
 		// Get current startId
@@ -198,6 +210,15 @@ public class BambiEnergyService extends Service {
 	 */
 	private void loadBambiTasks() {
 		// TODO Clean up this function for actual use
+		// Check that file exists before loading
+		File file = new File(FILENAME_NORMAL_TASKS);
+		
+		// TODO Pack this into a function
+		if (file.exists()) {
+			
+		} else {
+		}
+		
 		try {
 			FileInputStream fis = this.openFileInput(SERVICE_STORAGE_FILENAME);
 			ObjectInputStream is = new ObjectInputStream(fis);
