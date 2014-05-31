@@ -1,6 +1,7 @@
 package com.ndnxr.bambi;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
@@ -262,6 +263,52 @@ public class Bambi extends ActionBarActivity {
 		G.Log("Cell Signal Strength: " + signalStrength.signalStrength);
 	}
 	
+	public void schedule_task (View v) {
+		// Create email
+		Email email = new Email("to@to.com", "from@from.com", "subject", "message here");
+		
+		// Create Deadline
+	    Calendar calendar = Calendar.getInstance();
+	    calendar.setTime(new Date());
+	    calendar.add(Calendar.SECOND, 8);
+	    
+		Date deadline = calendar.getTime();
+		
+		// Create a task
+		Task task = new Task(TASK_TYPE.EMAIL, URGENCY.SCHEDULE, deadline, email);
+		
+		// Create instance of BambiLib
+		BambiLib bambiLib = new BambiLib(this);
+		
+		// Send email
+		boolean output = bambiLib.sendEmail(task);
+		
+		// Shutdown Lib
+		bambiLib.shutdown();
+		
+		G.Log("Here we go: " + output);
+		G.Log("schedule_task() DONE!");
+	}
+	
+	public void schedule_normal_task (View v) {
+		// Create email
+		Email email = new Email("to@to.com", "from@from.com", "subject", "message here");
+		
+		// Create a task
+		Task task = new Task(TASK_TYPE.EMAIL, URGENCY.NORMAL, null, email);
+		
+		// Create instance of BambiLib
+		BambiLib bambiLib = new BambiLib(this);
+		
+		// Send email
+		boolean output = bambiLib.sendEmail(task);
+		
+		// Shutdown Lib
+		bambiLib.shutdown();
+		
+		G.Log("Here we go: " + output);
+		G.Log("schedule_normal_task() DONE!");		
+	}
 	/**
 	 * Method that binds to the BambiEnergyService.
 	 */
