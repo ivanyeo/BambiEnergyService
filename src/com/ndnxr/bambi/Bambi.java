@@ -19,7 +19,10 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.telephony.CellInfo;
+import android.telephony.CellInfoCdma;
 import android.telephony.CellInfoGsm;
+import android.telephony.CellSignalStrengthCdma;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
@@ -171,6 +174,7 @@ public class Bambi extends ActionBarActivity {
 		G.Log("Wifi RSSI: " + signalStrength);
 	}
 	
+	// Capture of Signal Strength
 	class SS {
 		public int signalStrength = 0;
 	}
@@ -179,9 +183,6 @@ public class Bambi extends ActionBarActivity {
 	
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	public void get_mobile_strength(View v) {
-		// Local Variable
-		//int signalStrength = 0;
-		
 		// Get current API Level
 		int currentapiVersion = android.os.Build.VERSION.SDK_INT;
 		
@@ -189,60 +190,79 @@ public class Bambi extends ActionBarActivity {
 		if (currentapiVersion >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1){
 		    // API Level >= 17 to use getAllCellInfo()
 			TelephonyManager telephonyManager = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
-			CellInfoGsm cellinfogsm = (CellInfoGsm) telephonyManager.getAllCellInfo().get(0);
-			CellSignalStrengthGsm cellSignalStrengthGsm = cellinfogsm.getCellSignalStrength();
-			signalStrength.signalStrength = cellSignalStrengthGsm.getDbm();
+			
+			// Get Signal Strength based on connection type
+			for (CellInfo cellInfo : telephonyManager.getAllCellInfo()) {
+				int tempSignalStrength = 0;
+				
+				if (cellInfo instanceof CellInfoGsm) {
+					// GSM
+					CellInfoGsm cellInfoGsm = (CellInfoGsm) cellInfo;
+					CellSignalStrengthGsm cellSignalStrengthGsm = cellInfoGsm.getCellSignalStrength();
+					tempSignalStrength = cellSignalStrengthGsm.getDbm();
+				} else if (cellInfo instanceof CellInfoCdma) {
+					// CDMA
+					CellInfoCdma cellInfoCdma = (CellInfoCdma) cellInfo;
+					
+					CellSignalStrengthCdma cellSignalStrengthCdma = cellInfoCdma.getCellSignalStrength();
+					tempSignalStrength = cellSignalStrengthCdma.getDbm();
+				} else {
+					// Shouldn't get here
+					tempSignalStrength = -1;
+				}
+				
+				// Store Signal Strength
+				switch (tempSignalStrength) {
+				case 0:		// Error Checks
+				case -1:	// Fall through error condition
+					continue;
+					
+				default:
+					// Store signal strength value
+					signalStrength.signalStrength = tempSignalStrength;
+				}
+			}
+			
 			
 			G.Log("Cell Signal Strength: " + signalStrength.signalStrength);
-		} else{
+		} else {
 		    // API Level < 17
-			TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+			final TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 			
-//			AndroidPhoneStateListener phoneStateListener = new AndroidPhoneStateListener (this);
+			// Create PhoneStateListener to get Signal Strength
 			PhoneStateListener phoneStateListener = new PhoneStateListener() {
-
 		        @Override
 		        public void onSignalStrengthsChanged(SignalStrength ss) {
 		            super.onSignalStrengthsChanged(ss);
+		            
+		            // Get Signal Strength
 		            if (ss.isGsm()) {
+		            	// GSM Signal
 		            	// TODO Check  TS 27.007 8.5 for verification of conversion
-		                if (ss.getGsmSignalStrength() != 99)
+		                if (ss.getGsmSignalStrength() != 99) {
 		                    signalStrength.signalStrength = ss.getGsmSignalStrength() * 2 - 113;
-		                else
+		                } else {
 		                    signalStrength.signalStrength = ss.getGsmSignalStrength();
+		                }
 		            } else {
+		            	// CDMA Signal
 		                signalStrength.signalStrength = ss.getCdmaDbm();
 		            }
+		            
+		            // Unregister current listener
+		            telephonyManager.listen(this, PhoneStateListener.LISTEN_NONE);
 		            
 		            G.Log("Cell Signal Strength: " + signalStrength.signalStrength);
 		        }
 			};
+			
 			telephonyManager.listen(phoneStateListener,      
 					PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
-			    
 		}
 		
-		//G.Log("Cell Signal Strength: " + signalStrength.signalStrength);
+		G.Log("Cell Signal Strength: " + signalStrength.signalStrength);
 	}
-	/*
-	public class AndroidPhoneStateListener extends PhoneStateListener {
-        public static int signalStrengthValue;
-
-        @Override
-        public void onSignalStrengthsChanged(SignalStrength signalStrength) {
-            super.onSignalStrengthsChanged(signalStrength);
-            if (signalStrength.isGsm()) {
-                if (signalStrength.getGsmSignalStrength() != 99)
-                    signalStrengthValue = signalStrength.getGsmSignalStrength() * 2 - 113;
-                else
-                    signalStrengthValue = signalStrength.getGsmSignalStrength();
-            } else {
-                signalStrengthValue = signalStrength.getCdmaDbm();
-            }
-        }
-
-    }
-*/
+	
 	/**
 	 * Method that binds to the BambiEnergyService.
 	 */
