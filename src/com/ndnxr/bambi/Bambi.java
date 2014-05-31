@@ -183,14 +183,15 @@ public class Bambi extends ActionBarActivity {
 	
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	public void get_mobile_strength(View v) {
+		// Local Variable
+		final TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+		
 		// Get current API Level
 		int currentapiVersion = android.os.Build.VERSION.SDK_INT;
 		
 		// Execute necessary API Level
 		if (currentapiVersion >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1){
 		    // API Level >= 17 to use getAllCellInfo()
-			TelephonyManager telephonyManager = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
-			
 			// Get Signal Strength based on connection type
 			for (CellInfo cellInfo : telephonyManager.getAllCellInfo()) {
 				int tempSignalStrength = 0;
@@ -227,8 +228,6 @@ public class Bambi extends ActionBarActivity {
 			G.Log("Cell Signal Strength: " + signalStrength.signalStrength);
 		} else {
 		    // API Level < 17
-			final TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-			
 			// Create PhoneStateListener to get Signal Strength
 			PhoneStateListener phoneStateListener = new PhoneStateListener() {
 		        @Override
