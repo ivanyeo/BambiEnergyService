@@ -98,7 +98,7 @@ public class BambiEnergyService extends Service {
 	@Override
 	public void onDestroy() {
 		// TODO Save Service Tasks here
-		
+		saveBambiTasks();
 		G.Log("BambiEnergyService::onDestroy()");
 	}
 	
