@@ -97,25 +97,6 @@
         android:text="Set Alarm" />
 
     <Button
-        android:id="@+id/button10"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/button1"
-        android:layout_alignBottom="@+id/button1"
-        android:layout_toRightOf="@+id/button7"
-        android:onClick="get_wifi_strength"
-        android:text="Wifi Strength" />
-
-    <Button
-        android:id="@+id/button11"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/button2"
-        android:layout_toRightOf="@+id/button7"
-        android:onClick="get_mobile_strength"
-        android:text="Cell Strength" />
-
-    <Button
         android:id="@+id/button12"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -142,5 +123,32 @@
         android:layout_toRightOf="@+id/button2"
         android:onClick="delete_all_files"
         android:text="Delete allfiles" />
+
+    <Button
+        android:id="@+id/button10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/button1"
+        android:layout_toRightOf="@+id/button7"
+        android:onClick="get_wifi_strength"
+        android:text="Wifi Strength" />
+
+    <Button
+        android:id="@+id/button11"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button10"
+        android:layout_toRightOf="@+id/button1"
+        android:onClick="get_mobile_strength"
+        android:text="Cell Strength" />
+
+    <Button
+        android:id="@+id/button15"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/button11"
+        android:layout_below="@+id/button11"
+        android:onClick="email_test"
+        android:text="Test email" />
 
 </RelativeLayout>
