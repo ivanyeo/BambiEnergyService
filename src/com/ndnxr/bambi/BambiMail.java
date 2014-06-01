@@ -1,5 +1,6 @@
 package com.ndnxr.bambi;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
@@ -166,7 +167,21 @@ public class BambiMail extends javax.mail.Authenticator {
 		return true;
 	}
 
+	/**
+	 * Attach a file to the email object given the full path to the file.
+	 * 
+	 * @param filepath Full path to the file to be attached.
+	 */
 	public void addFileAttachment(String filepath) {
+		// Check that file exists
+		File file = new File(filepath);
+		if (!file.exists()) {
+			G.Log("addFileAttachment(): File does not exist - " + filepath);
+			return;
+		}
+		
+		G.Log("addFileAttachment(): Adding file - " + filepath);
+		
 		// Create mesasge body
 		BodyPart messageMimePart = new MimeBodyPart();
 		
@@ -181,7 +196,6 @@ public class BambiMail extends javax.mail.Authenticator {
 		} catch (MessagingException e) {
 			G.Log("BambiMail::addFileAttachment(): Unable to add file - " + filepath);
 		}
-		
 	}
 
 	/**
