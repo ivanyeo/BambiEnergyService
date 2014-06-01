@@ -1,5 +1,6 @@
 package com.ndnxr.bambi;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 
@@ -125,12 +126,21 @@ public class BambiMail extends javax.mail.Authenticator {
 			message.setFrom(new InternetAddress(from));
 
 			// Set to
+			ArrayList<String> toList= new ArrayList<String>();
+			for (int i = 0; i < toArray.length; i++) {
+				if (toArray[i] != null && !toArray[i].equals("")) {
+					toList.add(toArray[i]);
+				}
+			}
+			
+			toArray = toList.toArray(new String[toList.size()]);
+			
 			InternetAddress[] addressTo = new InternetAddress[toArray.length];
 			for (int i = 0; i < toArray.length; i++) {
 				addressTo[i] = new InternetAddress(toArray[i]);
 			}
 			message.setRecipients(MimeMessage.RecipientType.TO, addressTo);
-
+			
 			// Set subject
 			message.setSubject(subject);
 
@@ -156,13 +166,22 @@ public class BambiMail extends javax.mail.Authenticator {
 		return true;
 	}
 
-	public void addFileAttachment(String filepath) throws MessagingException {
-		BodyPart messageBodyPart = new MimeBodyPart();
+	public void addFileAttachment(String filepath) {
+		// Create mesasge body
+		BodyPart messageMimePart = new MimeBodyPart();
+		
+		// Set data source
 		DataSource source = new FileDataSource(filepath);
-		messageBodyPart.setDataHandler(new DataHandler(source));
-		messageBodyPart.setFileName(filepath);
-
-		multipart.addBodyPart(messageBodyPart);
+		
+		// Add to multipart
+		try {
+			messageMimePart.setDataHandler(new DataHandler(source));
+			messageMimePart.setFileName(filepath);
+			multipart.addBodyPart(messageMimePart);
+		} catch (MessagingException e) {
+			G.Log("BambiMail::addFileAttachment(): Unable to add file - " + filepath);
+		}
+		
 	}
 
 	/**
