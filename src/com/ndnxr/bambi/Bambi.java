@@ -139,8 +139,7 @@ public class Bambi extends ActionBarActivity {
 
 	public void send_email(View v) {
 		// Create email
-		Email email = new Email("to@to.com", "from@from.com", "subject",
-				"message here");
+		Email email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "subject here", "message", new String[]{"cs246rocks@gmail.com"}, null);
 
 		// Create a task
 		Task task = new Task(TASK_TYPE.EMAIL, URGENCY.URGENT, null, email);
@@ -274,9 +273,8 @@ public class Bambi extends ActionBarActivity {
 
 	public void schedule_task(View v) {
 		// Create email
-		Email email = new Email("to@to.com", "from@from.com", "subject",
-				"message here");
-
+		Email email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "subject here", "message", new String[]{"cs246rocks@gmail.com"}, null);
+		
 		// Create Deadline
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(new Date());
@@ -302,9 +300,8 @@ public class Bambi extends ActionBarActivity {
 
 	public void schedule_normal_task(View v) {
 		// Create email
-		Email email = new Email("to@to.com", "from@from.com", "subject",
-				"message here");
-
+		Email email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "subject here", "message", new String[]{"cs246rocks@gmail.com"}, null);
+		
 		// Create a task
 		Task task = new Task(TASK_TYPE.EMAIL, URGENCY.NORMAL, null, email);
 
@@ -322,17 +319,15 @@ public class Bambi extends ActionBarActivity {
 	}
 
 	public void delete_all_files(View v) {
-		G.Log("Not implemented.");
-		// G.Log("Deleting files ...");
-		// boolean out =
-		// this.deleteFile(BambiEnergyService.FILENAME_NORMAL_TASKS);
-		// G.Log(out + "");
-		// out = this.deleteFile(BambiEnergyService.FILENAME_CALLBACK_TASKS);
-		// G.Log(out + "");
-		// out = this.deleteFile(BambiEnergyService.FILENAME_SCHEDULE_TASKS);
-		// G.Log(out + "");
-		// this.deleteFile("BAMBI_STORAGE_FILE");
-		// G.Log("Done deleting all files.");
+		//G.Log("Not implemented.");
+		G.Log("Deleting files ...");
+		String [] files = { "FILE_NORMAL_TASKS", "FILE_SCHEDULE_TASKS", "FILE_CALLBACK_TASKS"};
+		
+		for (String file : files) {
+			this.deleteFile(file);
+		}
+		
+		G.Log("Done deleting all files.");
 	}
 
 	public void email_test(View v) {
