@@ -35,12 +35,10 @@ import android.telephony.TelephonyManager;
 public class BambiEnergyService extends Service {
 
 	// Configurations
-	// File names for storage
-	private static final String SERVICE_STORAGE_FILENAME = "FILE_NORMAL_TASKS";
 	private static final String FILENAME_NORMAL_TASKS = "FILE_NORMAL_TASKS";
 	private static final String FILENAME_SCHEDULE_TASKS = "FILE_SCHEDULE_TASKS";
 	private static final String FILENAME_CALLBACK_TASKS = "FILE_CALLBACK_TASKS";
-
+	
 	// Private Tasks to keep track of
 	private ArrayList<Task> normalTaskList = null;
 	private ArrayList<Task> scheduleTaskList = null;
@@ -55,6 +53,9 @@ public class BambiEnergyService extends Service {
 
 	@Override
 	public void onCreate() {
+		super.onCreate();
+		//android.os.Debug.waitForDebugger();
+		
 		// Load Bambi Tasks
 		loadBambiTasks();
 
@@ -81,7 +82,7 @@ public class BambiEnergyService extends Service {
 			// thread and invoke bambiStopSelf()
 			G.Log("BambiEnergyService::onStartCommand(): MESSAGE_ALARM_ARRIVED");
 
-			new Thread(new Runnable(){
+			new Thread(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -89,9 +90,9 @@ public class BambiEnergyService extends Service {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					
+
 					G.Log("DONE RUNNABLE THREAD!");
-					
+
 					bambiStopSelf();
 				}
 			}).start();
@@ -130,29 +131,30 @@ public class BambiEnergyService extends Service {
 	}
 
 	/**
-	 * Method attempts to store the given Task by first obtaining the cell's signal 
-	 * strength, depending on the supported API levels. For API 17 and above, the
-	 * cell's signal strength can be obtained immediately. However, for API 17 and 
-	 * lower, a PhoneStateListener callback is required to obtain the signal 
-	 * strength.
+	 * Method attempts to store the given Task by first obtaining the cell's
+	 * signal strength, depending on the supported API levels. For API 17 and
+	 * above, the cell's signal strength can be obtained immediately. However,
+	 * for API 17 and lower, a PhoneStateListener callback is required to obtain
+	 * the signal strength.
 	 * 
-	 * Once the signal strength is obtained and updated in the given Task object,
-	 * the scheduleTask(Task) method is invoked for the Task to be placed in 
-	 * the appropriate list and an Alarm set where applicable.
+	 * Once the signal strength is obtained and updated in the given Task
+	 * object, the scheduleTask(Task) method is invoked for the Task to be
+	 * placed in the appropriate list and an Alarm set where applicable.
 	 * 
-	 * @param task Task for which the cell signal should be obtained and stored
-	 * before being shipped off to be scheduled.
+	 * @param task
+	 *            Task for which the cell signal should be obtained and stored
+	 *            before being shipped off to be scheduled.
 	 * 
 	 */
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	private void storeTask(Task task) {
 		// Get current signal of Task base on API level
 		/**
-		 * Strategy:
-		 * 		>= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1: API 17 and above, signal can be retrieved directly
-		 * 		without the need for callback.
+		 * Strategy: >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1: API 17
+		 * and above, signal can be retrieved directly without the need for
+		 * callback.
 		 * 
-		 * 		Othewise, callback of PhoneStateListener() is required.
+		 * Othewise, callback of PhoneStateListener() is required.
 		 */
 		// Local Variable
 		final TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -196,58 +198,60 @@ public class BambiEnergyService extends Service {
 					task.setCellSignalStrengthDbm(tempSignalStrength);
 				}
 			}
-			
+
 			// Finally, schedule the Task
 			scheduleTask(task);
 
 			G.Log("Cell Signal Strength: " + task.getCellSignalStrengthDbm());
 		} else {
 			// API Level < 17
-			
+
 			// Append to awaitingSignalStrengthCallback list
 			awaitingSignalStrengthCallbackList.add(task);
-			
+
 			// Create PhoneStateListener to get Signal Strength
 			PhoneStateListener phoneStateListener = new PhoneStateListener() {
-		        @Override
-		        public void onSignalStrengthsChanged(SignalStrength ss) {
-		    		super.onSignalStrengthsChanged(ss);
+				@Override
+				public void onSignalStrengthsChanged(SignalStrength ss) {
+					super.onSignalStrengthsChanged(ss);
 
-		    		// Local Variable
-		    		int signalStrength = 0;
-		    		Task task = null;
+					// Local Variable
+					int signalStrength = 0;
+					Task task = null;
 
-		    		// Get Signal Strength
-		    		if (ss.isGsm()) {
-		    			// GSM Signal
-		    			// TODO Check TS 27.007 8.5 for verification of conversion
-		    			if (ss.getGsmSignalStrength() != 99) {
-		    				signalStrength = ss.getGsmSignalStrength() * 2 - 113;
-		    			} else {
-		    				signalStrength = ss.getGsmSignalStrength();
-		    			}
-		    		} else {
-		    			// CDMA Signal
-		    			signalStrength = ss.getCdmaDbm();
-		    		}
+					// Get Signal Strength
+					if (ss.isGsm()) {
+						// GSM Signal
+						// TODO Check TS 27.007 8.5 for verification of
+						// conversion
+						if (ss.getGsmSignalStrength() != 99) {
+							signalStrength = ss.getGsmSignalStrength() * 2 - 113;
+						} else {
+							signalStrength = ss.getGsmSignalStrength();
+						}
+					} else {
+						// CDMA Signal
+						signalStrength = ss.getCdmaDbm();
+					}
 
-		    		// Unregister current listener
-		    		telephonyManager.listen(this, PhoneStateListener.LISTEN_NONE);
-		    		
+					// Unregister current listener
+					telephonyManager.listen(this,
+							PhoneStateListener.LISTEN_NONE);
+
 					// Update Task's signal and put it in the correct list
-		    		synchronized (awaitingSignalStrengthCallbackList) {
+					synchronized (awaitingSignalStrengthCallbackList) {
 						task = awaitingSignalStrengthCallbackList.remove(0);
 						task.setCellSignalStrengthDbm(signalStrength);
 					}
-		    		
-		    		// Finally, schedule the Task
-		    		scheduleTask(task);
-		    		
-		    		// ... and Shutdown Service
-		    		bambiStopSelf();
 
-		    		G.Log("Cell Signal Strength: " + signalStrength);
-		        }
+					// Finally, schedule the Task
+					scheduleTask(task);
+
+					// ... and Shutdown Service
+					bambiStopSelf();
+
+					G.Log("Cell Signal Strength: " + signalStrength);
+				}
 			};
 
 			telephonyManager.listen(phoneStateListener,
@@ -257,10 +261,11 @@ public class BambiEnergyService extends Service {
 
 	/**
 	 * Schedules a task by placing the task in the appropriate list and setting
-	 * an alarm if any. This function does not stop the service; it merely schedules 
-	 * the Task.
+	 * an alarm if any. This function does not stop the service; it merely
+	 * schedules the Task.
 	 * 
-	 * @param task Task to be scheduled
+	 * @param task
+	 *            Task to be scheduled
 	 */
 	private void scheduleTask(Task task) {
 		switch (task.getUrgency()) {
@@ -273,8 +278,10 @@ public class BambiEnergyService extends Service {
 			AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
 			// Create Intent
-			Intent intent = new Intent(getBaseContext(), BambiAlarmReceiver.class);
-			intent.putExtra(BambiAlarm.MESSAGE_ALARM, BambiAlarm.MESSAGE_ALARM_ARRIVED);
+			Intent intent = new Intent(getBaseContext(),
+					BambiAlarmReceiver.class);
+			intent.putExtra(BambiAlarm.MESSAGE_ALARM,
+					BambiAlarm.MESSAGE_ALARM_ARRIVED);
 
 			PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
 					intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -291,7 +298,7 @@ public class BambiEnergyService extends Service {
 		case NORMAL:
 			// Add Task to the Normal Task list ... i.e waiting for Wifi
 			normalTaskList.add(task);
-			
+
 			G.Log("BambiEnergyService::scheduleTask() NORMAL Task.");
 			break;
 		default:
@@ -401,23 +408,26 @@ public class BambiEnergyService extends Service {
 	 * function is invoked when the Service is destroyed or unloaded.
 	 */
 	private void saveBambiTasks() {
-		// TODO Write actual code for this function
-		// try {
-		// FileOutputStream fos = this.openFileOutput(SERVICE_STORAGE_FILENAME,
-		// Context.MODE_PRIVATE);
-		// ObjectOutputStream os = new ObjectOutputStream(fos);
-		//
-		// Email email = new Email("to", "from", "subject", "message");
-		//
-		// os.writeObject(email);
-		// os.close();
-		//
-		// G.Log("Write success");
-		// } catch (FileNotFoundException e) {
-		// G.Log("Error: " + e.getMessage());
-		// } catch (IOException e) {
-		// G.Log("Error: " + e.getMessage());
-		// }
+		// Save array lists
+		saveArrayListToFile(FILENAME_NORMAL_TASKS, normalTaskList);
+		saveArrayListToFile(FILENAME_SCHEDULE_TASKS, scheduleTaskList);
+		saveArrayListToFile(FILENAME_CALLBACK_TASKS, awaitingSignalStrengthCallbackList);
+	}
+
+	private void saveArrayListToFile(String filename, ArrayList<Task> list) {
+		try {
+			FileOutputStream fos = this.openFileOutput(filename, Context.MODE_PRIVATE);
+			ObjectOutputStream os = new ObjectOutputStream(fos);
+
+			os.writeObject(list);
+			os.close();
+
+			G.Log(filename + ": Write success");
+		} catch (FileNotFoundException e) {
+			G.Log("Error: " + e.getMessage());
+		} catch (IOException e) {
+			G.Log("Error: " + e.getMessage());
+		}
 	}
 
 	/**
@@ -425,39 +435,52 @@ public class BambiEnergyService extends Service {
 	 * service is loaded.
 	 */
 	private void loadBambiTasks() {
-		// TODO Clear these for lines used for testing
-		normalTaskList = new ArrayList<Task>();
-		scheduleTaskList = new ArrayList<Task>();
-		awaitingSignalStrengthCallbackList = new ArrayList<Task>();
+		// Load Files
+		normalTaskList = loadArrayListFromFile(FILENAME_NORMAL_TASKS);
+		scheduleTaskList = loadArrayListFromFile(FILENAME_SCHEDULE_TASKS);
+		awaitingSignalStrengthCallbackList = loadArrayListFromFile(FILENAME_CALLBACK_TASKS);
+	}
 
-		// TODO Clean up this function for actual use
+	private ArrayList<Task> loadArrayListFromFile(String filename) {
+		// Local Variable
+//		File file = new File(filename);
+		File file = this.getFileStreamPath(filename);
+		ArrayList<Task> list = null;
+
 		// Check that file exists before loading
-		File file = new File(FILENAME_NORMAL_TASKS);
+		if (file.exists()) {
+			try {
+				FileInputStream fis = this.openFileInput(filename);
+				ObjectInputStream is = new ObjectInputStream(fis);
+				Object o = is.readObject();
 
-		// TODO Pack this into a function
-		// if (file.exists()) {
-		//
-		// } else {
-		// }
-		//
-		// try {
-		// FileInputStream fis = this.openFileInput(SERVICE_STORAGE_FILENAME);
-		// ObjectInputStream is = new ObjectInputStream(fis);
-		// Object o = is.readObject();
-		//
-		// if (o instanceof Email) {
-		// G.Log("Woohoo! Instance of email!");
-		// } else {
-		// G.Log("Nope, couldn't make out what file object was read in.");
-		// }
-		//
-		// is.close();
-		// } catch (FileNotFoundException e) {
-		// G.Log(e.getMessage());
-		// } catch (IOException e) {
-		// G.Log(e.getMessage());
-		// } catch (ClassNotFoundException e) {
-		// G.Log(e.getMessage());
-		// }
+				if (o instanceof ArrayList) {
+					list = (ArrayList<Task>) o;
+					G.Log("ArrayList found in filename: " + filename);
+					G.Log("ArrayList LENGTH: " + list.size());
+				} else {
+					G.Log(filename + " does not contain an ArrayList Object.");
+				}
+
+				is.close();
+			} catch (FileNotFoundException e) {
+				G.Log(e.getMessage());
+			} catch (IOException e) {
+				G.Log(e.getMessage());
+			} catch (ClassNotFoundException e) {
+				G.Log(e.getMessage());
+			}
+			
+			G.Log("loadArrayListFromFile(): READ FILE: " + filename);
+		} else {
+			// Create an empty list
+			list = new ArrayList<Task>();
+			
+			G.Log("loadArrayListFromFile(): EMPTY LIST");
+		}
+
+		G.Log("loadArrayListFromFile(): Done!");
+		
+		return list;
 	}
 }

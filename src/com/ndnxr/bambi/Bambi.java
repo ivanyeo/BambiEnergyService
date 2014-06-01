@@ -309,6 +309,19 @@ public class Bambi extends ActionBarActivity {
 		G.Log("Here we go: " + output);
 		G.Log("schedule_normal_task() DONE!");		
 	}
+	
+	public void delete_all_files(View v) {
+		G.Log("Not implemented.");
+//		G.Log("Deleting files ...");
+//		boolean out = this.deleteFile(BambiEnergyService.FILENAME_NORMAL_TASKS);
+//		G.Log(out + "");
+//		out = this.deleteFile(BambiEnergyService.FILENAME_CALLBACK_TASKS);
+//		G.Log(out + "");
+//		out = this.deleteFile(BambiEnergyService.FILENAME_SCHEDULE_TASKS);
+//		G.Log(out + "");
+//		this.deleteFile("BAMBI_STORAGE_FILE");
+//		G.Log("Done deleting all files.");
+	}
 	/**
 	 * Method that binds to the BambiEnergyService.
 	 */

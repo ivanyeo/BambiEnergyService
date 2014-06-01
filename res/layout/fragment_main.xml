@@ -128,10 +128,19 @@
         android:id="@+id/button13"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/button8"
-        android:layout_marginLeft="26dp"
-        android:layout_toRightOf="@+id/button1"
+        android:layout_above="@+id/button9"
+        android:layout_toRightOf="@+id/button2"
         android:onClick="schedule_normal_task"
-        android:text="Schedule Normal Task" />
+        android:text="Normal Task" />
+
+    <Button
+        android:id="@+id/button14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/button9"
+        android:layout_alignBottom="@+id/button9"
+        android:layout_toRightOf="@+id/button2"
+        android:onClick="delete_all_files"
+        android:text="Delete allfiles" />
 
 </RelativeLayout>
