@@ -9,6 +9,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
@@ -22,6 +23,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.Parcelable;
 import android.os.RemoteException;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoCdma;
@@ -85,11 +87,8 @@ public class BambiEnergyService extends Service {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
-					try {
-						Thread.sleep(2000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+					// Process schduled Task list
+					processScheduleTaskList();
 
 					G.Log("DONE RUNNABLE THREAD!");
 
@@ -128,6 +127,52 @@ public class BambiEnergyService extends Service {
 		// deliver, then the service will be scheduled to start with the last
 		// intent being re-delivered.
 		return Service.START_REDELIVER_INTENT;
+	}
+	
+	/**
+	 * Method that processes tasks on the scheduleTaskList that have the deadline
+	 * earlier or equal to the current time now.
+	 */
+	private void processScheduleTaskList() {
+		// Get current time
+		Date now = new Date();
+		
+		// Remaining Task list
+		ArrayList<Task> remainingTasks = new ArrayList<Task>();
+		
+		// Process Tasks
+		synchronized (scheduleTaskList) {
+			// Iterate through Tasks
+			for (Task t : scheduleTaskList) {
+				if (t.getDeadline().before(now)) {
+					// Process Task
+					processTask(t);
+				} else {
+					// Add it to remaining Task that have to be scheduled to run
+					remainingTasks.add(t);
+				}
+			}
+			
+			// Update scheduleTaskList
+			scheduleTaskList = remainingTasks;
+		}
+	}
+	
+	/**
+	 * Method that processes a given Task, based on the Task type.
+	 * 
+	 * @param task Task to be processed.
+	 */
+	private void processTask(Task task) {
+		// Process Task according to Task type
+		switch (task.getType()) {
+		case EMAIL:
+			// Send Email out
+			
+		default:
+			throw new RuntimeException("Invalid TASK_TYPE.");
+		}
+
 	}
 
 	/**
