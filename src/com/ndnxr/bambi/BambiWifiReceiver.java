@@ -22,7 +22,7 @@ public class BambiWifiReceiver extends BroadcastReceiver {
 	        	// TODO startService() and send all normal and scheduled Tasks
 	        } else {
 	        	G.Log("BambiWifiReceiver: Wifi Disonnected!");
-	            // Wifi Disconnected
+	            // Wifi Disconnected - Nothing needs to be done
 	        }
 	    }
 	}

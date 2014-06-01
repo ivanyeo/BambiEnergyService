@@ -58,7 +58,7 @@ public class BambiEnergyService extends Service {
 		super.onCreate();
 		//android.os.Debug.waitForDebugger();
 		
-		// Load Bambi Tasks
+		// Load Bambi Service Tasks
 		loadBambiTasks();
 
 		G.Log("BambiEnergyService::onCreate()");
@@ -80,7 +80,7 @@ public class BambiEnergyService extends Service {
 
 		switch (message) {
 		case BambiAlarm.MESSAGE_ALARM_ARRIVED:
-			// TODO Process Tasks that have hit their deadlines in a different
+			// Process Tasks that have hit their deadlines in a different
 			// thread and invoke bambiStopSelf()
 			G.Log("BambiEnergyService::onStartCommand(): MESSAGE_ALARM_ARRIVED");
 
@@ -393,7 +393,7 @@ public class BambiEnergyService extends Service {
 
 	@Override
 	public void onDestroy() {
-		// TODO Save Service Tasks here
+		// Save Bambi Service Tasks
 		saveBambiTasks();
 		G.Log("BambiEnergyService::onDestroy()");
 	}

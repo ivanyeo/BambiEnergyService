@@ -10,7 +10,11 @@ public class BambiBootCompleteReceiver extends BroadcastReceiver {
 	public void onReceive(Context arg0, Intent arg1) {
 		G.Log("BambiBootCompleteReceiver::onReceive()");
 		
-		// TODO startService() to: (1) Read in Tasks from Files and (2) Send anything that is past due
+		// TODO startService() and do these in the Service
+		/*		(1) Read in Tasks from Files (done in service)
+		 *  	(2) Send anything that is past due
+		 *  	(3) Set Alarm for SCHEDULE Tasks in the future as AlarmManager gets flushed on re-boot
+		 */
 	}
 
 }
