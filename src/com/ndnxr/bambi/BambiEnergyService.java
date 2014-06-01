@@ -443,7 +443,6 @@ public class BambiEnergyService extends Service {
 
 	private ArrayList<Task> loadArrayListFromFile(String filename) {
 		// Local Variable
-//		File file = new File(filename);
 		File file = this.getFileStreamPath(filename);
 		ArrayList<Task> list = null;
 
