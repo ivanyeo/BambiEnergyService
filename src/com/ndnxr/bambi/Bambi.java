@@ -69,18 +69,18 @@ public class Bambi extends ActionBarActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 	public void set_alarm(View v) {
 		// Get the AlarmManager
 		AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-		
+
 		// Create Intent
 		Intent intent = new Intent(getBaseContext(), BambiAlarmReceiver.class);
-		intent.putExtra(BambiAlarm.MESSAGE_ALARM, BambiAlarm.MESSAGE_ALARM_ARRIVED);
-		
-		PendingIntent pendingIntent = PendingIntent
-				.getBroadcast(this, 0, intent,
-						PendingIntent.FLAG_UPDATE_CURRENT);
+		intent.putExtra(BambiAlarm.MESSAGE_ALARM,
+				BambiAlarm.MESSAGE_ALARM_ARRIVED);
+
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
+				intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		G.Log("Setup the alarm");
 
@@ -139,20 +139,21 @@ public class Bambi extends ActionBarActivity {
 
 	public void send_email(View v) {
 		// Create email
-		Email email = new Email("to@to.com", "from@from.com", "subject", "message here");
-		
+		Email email = new Email("to@to.com", "from@from.com", "subject",
+				"message here");
+
 		// Create a task
 		Task task = new Task(TASK_TYPE.EMAIL, URGENCY.URGENT, null, email);
-		
+
 		// Create instance of BambiLib
 		BambiLib bambiLib = new BambiLib(this);
-		
+
 		// Send email
 		boolean output = bambiLib.sendEmail(task);
-		
+
 		// Shutdown Lib
 		bambiLib.shutdown();
-		
+
 		G.Log("Here we go: " + output);
 		G.Log("send_email() DONE!");
 	}
@@ -164,164 +165,203 @@ public class Bambi extends ActionBarActivity {
 	public void read_file(View v) {
 		G.Log("Nothing done here. Function to be removed.");
 	}
-	
+
 	public void get_wifi_strength(View v) {
 		// Get WifiManager from System Service
-		WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
-		
-		// Usually between 0 to -100 dBm; values closer to 0 means signal strength is stronger.
+		WifiManager wifiManager = (WifiManager) this
+				.getSystemService(Context.WIFI_SERVICE);
+
+		// Usually between 0 to -100 dBm; values closer to 0 means signal
+		// strength is stronger.
 		int signalStrength = wifiManager.getConnectionInfo().getRssi();
-		
+
 		G.Log("Wifi RSSI: " + signalStrength);
 	}
-	
+
 	// Capture of Signal Strength
 	class SS {
 		public int signalStrength = 0;
 	}
-	
+
 	public final SS signalStrength = new SS();
-	
+
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	public void get_mobile_strength(View v) {
 		// Local Variable
 		final TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-		
+
 		// Get current API Level
 		int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-		
+
 		// Execute necessary API Level
-		if (currentapiVersion >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1){
-		    // API Level >= 17 to use getAllCellInfo()
+		if (currentapiVersion >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+			// API Level >= 17 to use getAllCellInfo()
 			// Get Signal Strength based on connection type
 			for (CellInfo cellInfo : telephonyManager.getAllCellInfo()) {
 				int tempSignalStrength = 0;
-				
+
 				if (cellInfo instanceof CellInfoGsm) {
 					// GSM
 					CellInfoGsm cellInfoGsm = (CellInfoGsm) cellInfo;
-					CellSignalStrengthGsm cellSignalStrengthGsm = cellInfoGsm.getCellSignalStrength();
+					CellSignalStrengthGsm cellSignalStrengthGsm = cellInfoGsm
+							.getCellSignalStrength();
 					tempSignalStrength = cellSignalStrengthGsm.getDbm();
 				} else if (cellInfo instanceof CellInfoCdma) {
 					// CDMA
 					CellInfoCdma cellInfoCdma = (CellInfoCdma) cellInfo;
-					
-					CellSignalStrengthCdma cellSignalStrengthCdma = cellInfoCdma.getCellSignalStrength();
+
+					CellSignalStrengthCdma cellSignalStrengthCdma = cellInfoCdma
+							.getCellSignalStrength();
 					tempSignalStrength = cellSignalStrengthCdma.getDbm();
 				} else {
 					// Shouldn't get here
 					tempSignalStrength = -1;
 				}
-				
+
 				// Store Signal Strength
 				switch (tempSignalStrength) {
-				case 0:		// Error Checks
-				case -1:	// Fall through error condition
+				case 0: // Error Checks
+				case -1: // Fall through error condition
 					continue;
-					
+
 				default:
 					// Store signal strength value
 					signalStrength.signalStrength = tempSignalStrength;
 				}
 			}
-			
-			
+
 			G.Log("Cell Signal Strength: " + signalStrength.signalStrength);
 		} else {
-		    // API Level < 17
+			// API Level < 17
 			// Create PhoneStateListener to get Signal Strength
 			PhoneStateListener phoneStateListener = new PhoneStateListener() {
-		        @Override
-		        public void onSignalStrengthsChanged(SignalStrength ss) {
-		            super.onSignalStrengthsChanged(ss);
-		            
-		            // Get Signal Strength
-		            if (ss.isGsm()) {
-		            	// GSM Signal
-		            	// TODO Check  TS 27.007 8.5 for verification of conversion
-		                if (ss.getGsmSignalStrength() != 99) {
-		                    signalStrength.signalStrength = ss.getGsmSignalStrength() * 2 - 113;
-		                } else {
-		                    signalStrength.signalStrength = ss.getGsmSignalStrength();
-		                }
-		            } else {
-		            	// CDMA Signal
-		                signalStrength.signalStrength = ss.getCdmaDbm();
-		            }
-		            
-		            // Unregister current listener
-		            telephonyManager.listen(this, PhoneStateListener.LISTEN_NONE);
-		            
-		            G.Log("Cell Signal Strength: " + signalStrength.signalStrength);
-		        }
+				@Override
+				public void onSignalStrengthsChanged(SignalStrength ss) {
+					super.onSignalStrengthsChanged(ss);
+
+					// Get Signal Strength
+					if (ss.isGsm()) {
+						// GSM Signal
+						// TODO Check TS 27.007 8.5 for verification of
+						// conversion
+						if (ss.getGsmSignalStrength() != 99) {
+							signalStrength.signalStrength = ss
+									.getGsmSignalStrength() * 2 - 113;
+						} else {
+							signalStrength.signalStrength = ss
+									.getGsmSignalStrength();
+						}
+					} else {
+						// CDMA Signal
+						signalStrength.signalStrength = ss.getCdmaDbm();
+					}
+
+					// Unregister current listener
+					telephonyManager.listen(this,
+							PhoneStateListener.LISTEN_NONE);
+
+					G.Log("Cell Signal Strength: "
+							+ signalStrength.signalStrength);
+				}
 			};
-			
-			telephonyManager.listen(phoneStateListener,      
+
+			telephonyManager.listen(phoneStateListener,
 					PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 		}
-		
+
 		G.Log("Cell Signal Strength: " + signalStrength.signalStrength);
 	}
-	
-	public void schedule_task (View v) {
+
+	public void schedule_task(View v) {
 		// Create email
-		Email email = new Email("to@to.com", "from@from.com", "subject", "message here");
-		
+		Email email = new Email("to@to.com", "from@from.com", "subject",
+				"message here");
+
 		// Create Deadline
-	    Calendar calendar = Calendar.getInstance();
-	    calendar.setTime(new Date());
-	    calendar.add(Calendar.SECOND, 8);
-	    
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(new Date());
+		calendar.add(Calendar.SECOND, 8);
+
 		Date deadline = calendar.getTime();
-		
+
 		// Create a task
 		Task task = new Task(TASK_TYPE.EMAIL, URGENCY.SCHEDULE, deadline, email);
-		
+
 		// Create instance of BambiLib
 		BambiLib bambiLib = new BambiLib(this);
-		
+
 		// Send email
 		boolean output = bambiLib.sendEmail(task);
-		
+
 		// Shutdown Lib
 		bambiLib.shutdown();
-		
+
 		G.Log("Here we go: " + output);
 		G.Log("schedule_task() DONE!");
 	}
-	
-	public void schedule_normal_task (View v) {
+
+	public void schedule_normal_task(View v) {
 		// Create email
-		Email email = new Email("to@to.com", "from@from.com", "subject", "message here");
-		
+		Email email = new Email("to@to.com", "from@from.com", "subject",
+				"message here");
+
 		// Create a task
 		Task task = new Task(TASK_TYPE.EMAIL, URGENCY.NORMAL, null, email);
-		
+
 		// Create instance of BambiLib
 		BambiLib bambiLib = new BambiLib(this);
-		
+
 		// Send email
 		boolean output = bambiLib.sendEmail(task);
-		
+
 		// Shutdown Lib
 		bambiLib.shutdown();
-		
+
 		G.Log("Here we go: " + output);
-		G.Log("schedule_normal_task() DONE!");		
+		G.Log("schedule_normal_task() DONE!");
 	}
-	
+
 	public void delete_all_files(View v) {
 		G.Log("Not implemented.");
-//		G.Log("Deleting files ...");
-//		boolean out = this.deleteFile(BambiEnergyService.FILENAME_NORMAL_TASKS);
-//		G.Log(out + "");
-//		out = this.deleteFile(BambiEnergyService.FILENAME_CALLBACK_TASKS);
-//		G.Log(out + "");
-//		out = this.deleteFile(BambiEnergyService.FILENAME_SCHEDULE_TASKS);
-//		G.Log(out + "");
-//		this.deleteFile("BAMBI_STORAGE_FILE");
-//		G.Log("Done deleting all files.");
+		// G.Log("Deleting files ...");
+		// boolean out =
+		// this.deleteFile(BambiEnergyService.FILENAME_NORMAL_TASKS);
+		// G.Log(out + "");
+		// out = this.deleteFile(BambiEnergyService.FILENAME_CALLBACK_TASKS);
+		// G.Log(out + "");
+		// out = this.deleteFile(BambiEnergyService.FILENAME_SCHEDULE_TASKS);
+		// G.Log(out + "");
+		// this.deleteFile("BAMBI_STORAGE_FILE");
+		// G.Log("Done deleting all files.");
 	}
+
+	public void email_test(View v) {
+		BambiMail m = new BambiMail("cs246rocks@gmail.com", "cs202rocks");
+
+		String[] toArr = { "cs246rocks@gmail.com" };
+		m.toArray = toArr;
+		m.from = "wooo@wooo.com";
+		m.subject = "This is an email sent using my Mail JavaMail wrapper from an Android device.";
+		m.messageBody = "Email body.";
+
+		try {
+//			m.addAttachment("/sdcard/filelocation");
+
+			if (m.sendEmail()) {
+				Toast.makeText(this, "Email was sent successfully.",
+						Toast.LENGTH_LONG).show();
+			} else {
+				Toast.makeText(this, "Email was not sent.",
+						Toast.LENGTH_LONG).show();
+			}
+		} catch (Exception e) {
+			// Toast.makeText(MailApp.this,
+			// "There was a problem sending the email.",
+			// Toast.LENGTH_LONG).show();
+			G.Log("Could not send email");
+		}
+	}
+
 	/**
 	 * Method that binds to the BambiEnergyService.
 	 */
