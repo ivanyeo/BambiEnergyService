@@ -183,13 +183,13 @@ public class BambiEnergyService extends Service {
 					);
 			
 			// Add attachments if any
-//			if (email.getFilePaths().length > 0) {
-//				for (String filepath : email.getFilePaths()) {
-//					if (!filepath.equals("")) {
-//						mail.addFileAttachment(filepath);
-//					}
-//				}
-//			}
+			if (email.getFilePaths().length > 0) {
+				for (String filepath : email.getFilePaths()) {
+					if (filepath != null && !filepath.equals("")) {
+						mail.addFileAttachment(filepath);
+					}
+				}
+			}
 			
 			// Send email
 			if (mail.sendEmail()) {
