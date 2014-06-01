@@ -272,8 +272,14 @@ public class Bambi extends ActionBarActivity {
 	}
 
 	public void schedule_task(View v) {
-		// Create email
-		Email email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "subject here", "message", new String[]{"cs246rocks@gmail.com"}, null);
+		// Create email with attachment
+		String attachment = null;
+		
+		if (this.getFileStreamPath("smurf2.png").exists()) {
+			attachment = this.getFileStreamPath("smurf2.png").getAbsolutePath();
+		}
+		
+		Email email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "subject here", "message", new String[]{"cs246rocks@gmail.com"}, new String[]{ attachment });
 		
 		// Create Deadline
 		Calendar calendar = Calendar.getInstance();
