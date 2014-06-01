@@ -167,7 +167,38 @@ public class BambiEnergyService extends Service {
 		// Process Task according to Task type
 		switch (task.getType()) {
 		case EMAIL:
-			// Send Email out
+			// Extract data
+			Email email = (Email) task.getPayload();
+			
+			// Create and Send Email
+			BambiMail mail = new BambiMail(
+					email.getUsername(),
+					email.getPassword(),
+					email.getServerAddress(),
+					email.getServerPort(),
+					email.getFrom(),
+					email.getToArray(),
+					email.getSubject(),
+					email.getMessage()
+					);
+			
+			// Add attachments if any
+//			if (email.getFilePaths().length > 0) {
+//				for (String filepath : email.getFilePaths()) {
+//					if (!filepath.equals("")) {
+//						mail.addFileAttachment(filepath);
+//					}
+//				}
+//			}
+			
+			// Send email
+			if (mail.sendEmail()) {
+				G.Log("BambiEnergyService::processTask(): Email sent Successfully!");
+			} else {
+				G.Log("BambiEnergyService::processTask(): Error while sendnig email.");
+			}
+			
+			break;
 			
 		default:
 			throw new RuntimeException("Invalid TASK_TYPE.");
