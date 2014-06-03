@@ -75,11 +75,11 @@ public class BambiEnergyService extends Service {
 			BambiEnergyService.startId = startId;
 		}
 
-		// Get Intent message and check against BambiAlarm messages
-		int message = intent.getIntExtra(BambiAlarm.MESSAGE_ALARM, 0);
+		// Get Intent message and check against BambiMessages
+		int message = intent.getIntExtra(BambiMessages.MESSAGE_ALARM, 0);
 
 		switch (message) {
-		case BambiAlarm.MESSAGE_ALARM_ARRIVED:
+		case BambiMessages.MESSAGE_ALARM_ARRIVED:
 			// Process Tasks that have hit their deadlines in a different
 			// thread and invoke bambiStopSelf()
 			G.Log("BambiEnergyService::onStartCommand(): MESSAGE_ALARM_ARRIVED");
@@ -90,7 +90,38 @@ public class BambiEnergyService extends Service {
 					// Process schduled Task list
 					processScheduleTaskList();
 
-					G.Log("DONE RUNNABLE THREAD!");
+					G.Log("MESSAGE_ALARM_ARRIVED: DONE RUNNABLE THREAD!");
+
+					bambiStopSelf();
+				}
+			}).start();
+
+			break;
+		}
+		
+		// Get Intent message and check against BambiMessages
+		message = intent.getIntExtra(BambiMessages.MESSAGE_BOOT_COMPLETE, 0);
+
+		switch (message) {
+		case BambiMessages.MESSAGE_BOOT_COMPLETE_ARRIVED:
+			/***
+			 * Process Tasks that:
+			 * 		(1) have deadlines past due
+			 * 		(2) schedule AlarmManager with alarms for Tasks with deadlines in the future.
+			 * 			This is required as the AlarmManager does not keep its state between reboots 
+			 * 			of the system.
+			 *
+			 * Run all these in a seperate Thread and invoke bambiStopSelf().
+			 */
+			G.Log("BambiEnergyService::onStartCommand(): MESSAGE_BOOT_COMPLETE_ARRIVED");
+
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					// Invoke function to process boot complete
+					processBootComplete();
+
+					G.Log("MESSAGE_BOOT_COMPLETE_ARRIVED: DONE RUNNABLE THREAD!");
 
 					bambiStopSelf();
 				}
@@ -164,6 +195,8 @@ public class BambiEnergyService extends Service {
 	 * @param task Task to be processed.
 	 */
 	private void processTask(Task task) {
+		G.Log("processTask(): TaskType: " + task.getType());
+		
 		// Process Task according to Task type
 		switch (task.getType()) {
 		case EMAIL:
@@ -204,6 +237,67 @@ public class BambiEnergyService extends Service {
 			throw new RuntimeException("Invalid TASK_TYPE.");
 		}
 
+	}
+	
+	/**
+	 * This method is invoked when the mobile device has fully booted. The AlarmManger does
+	 * not store the previous state and all processes that have a future deadline have to
+	 * set the alarm once again.
+	 * 
+	 * Method that processes:
+	 * 		(1) Tasks that are past due and 
+	 * 		(2) schedule Tasks that have deadlines in the future
+	 * 
+	 */
+	private void processBootComplete() {
+		// Get current time
+		Date now = new Date();
+		
+		// Remaining Task list
+		ArrayList<Task> remainingTasks = new ArrayList<Task>();
+		
+		// Process Tasks
+		synchronized (scheduleTaskList) {
+			// Iterate through Tasks
+			for (Task t : scheduleTaskList) {
+				if (t.getDeadline().before(now)) {
+					// Process in this current Thread as Service has already created a new Thread for this 
+					// method. The rationale for processing here is to prevent the current Thread from running
+					// to completion and invoking bambiStopSelf(); 
+					processTask(t);
+					
+					G.Log("processBootComplete(): Deadline Missed! Running Task Now!");
+				} else {
+					// (2) Schedule Task with future deadlines: Set AlarmManager to wake at that time
+					// Get the AlarmManager
+					AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+					// Create Intent
+					Intent intent = new Intent(getBaseContext(),
+							BambiAlarmReceiver.class);
+					intent.putExtra(BambiMessages.MESSAGE_ALARM,
+							BambiMessages.MESSAGE_ALARM_ARRIVED);
+
+					PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
+							intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+					// Getting Calendar instance and setting the deadline
+					Calendar calendar = Calendar.getInstance();
+					calendar.setTime(t.getDeadline());
+
+					alarmManager.set(AlarmManager.RTC_WAKEUP,
+							calendar.getTimeInMillis(), pendingIntent);
+
+					G.Log("BambiEnergyService::processBootComplete(): Scheduled Task with Deadline!");					
+					
+					// Add it to remaining Task that have to be scheduled to run
+					remainingTasks.add(t);
+				}
+			}
+			
+			// Update scheduleTaskList
+			scheduleTaskList = remainingTasks;
+		}
 	}
 
 	/**
@@ -356,8 +450,8 @@ public class BambiEnergyService extends Service {
 			// Create Intent
 			Intent intent = new Intent(getBaseContext(),
 					BambiAlarmReceiver.class);
-			intent.putExtra(BambiAlarm.MESSAGE_ALARM,
-					BambiAlarm.MESSAGE_ALARM_ARRIVED);
+			intent.putExtra(BambiMessages.MESSAGE_ALARM,
+					BambiMessages.MESSAGE_ALARM_ARRIVED);
 
 			PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
 					intent, PendingIntent.FLAG_UPDATE_CURRENT);
