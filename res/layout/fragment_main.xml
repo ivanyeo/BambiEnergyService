@@ -151,4 +151,14 @@
         android:onClick="email_test"
         android:text="Test email" />
 
+    <Button
+        android:id="@+id/button16"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/button7"
+        android:layout_alignRight="@+id/button12"
+        android:onClick="schedule_1min_mail"
+        android:text="T1Min" />
+
 </RelativeLayout>

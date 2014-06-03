@@ -324,6 +324,40 @@ public class Bambi extends ActionBarActivity {
 		G.Log("Here we go: " + output);
 		G.Log("schedule_normal_task() DONE!");
 	}
+	
+	public void schedule_1min_mail(View v) {
+		// Create email with attachment
+		String attachment = null;
+		String filename = "smurf2.png";
+		
+		if (this.getFileStreamPath(filename).exists()) {
+			attachment = this.getFileStreamPath(filename).getAbsolutePath();
+		}
+		
+		Email email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "subject here", "message", new String[]{"cs246rocks@gmail.com"}, new String[]{ attachment });
+		
+		// Create Deadline
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(new Date());
+		calendar.add(Calendar.MINUTE, 1);
+
+		Date deadline = calendar.getTime();
+
+		// Create a task
+		Task task = new Task(TASK_TYPE.EMAIL, URGENCY.SCHEDULE, deadline, email);
+
+		// Create instance of BambiLib
+		BambiLib bambiLib = new BambiLib(this);
+
+		// Send email
+		boolean output = bambiLib.sendEmail(task);
+
+		// Shutdown Lib
+		bambiLib.shutdown();
+
+		G.Log("Here we go: " + output);
+		G.Log("schedule_1min_mail() DONE!");
+	}
 
 	public void delete_all_files(View v) {
 		//G.Log("Not implemented.");
