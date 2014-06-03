@@ -261,12 +261,12 @@ public class BambiEnergyService extends Service {
 			// Iterate through Tasks
 			for (Task t : scheduleTaskList) {
 				if (t.getDeadline().before(now)) {
+					G.Log("processBootComplete(): Deadline Missed! Running Task Now!");
+					
 					// Process in this current Thread as Service has already created a new Thread for this 
 					// method. The rationale for processing here is to prevent the current Thread from running
 					// to completion and invoking bambiStopSelf(); 
 					processTask(t);
-					
-					G.Log("processBootComplete(): Deadline Missed! Running Task Now!");
 				} else {
 					// (2) Schedule Task with future deadlines: Set AlarmManager to wake at that time
 					// Get the AlarmManager
