@@ -76,8 +76,8 @@ public class Bambi extends ActionBarActivity {
 
 		// Create Intent
 		Intent intent = new Intent(getBaseContext(), BambiAlarmReceiver.class);
-		intent.putExtra(BambiAlarm.MESSAGE_ALARM,
-				BambiAlarm.MESSAGE_ALARM_ARRIVED);
+		intent.putExtra(BambiMessages.MESSAGE_ALARM,
+				BambiMessages.MESSAGE_ALARM_ARRIVED);
 
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
 				intent, PendingIntent.FLAG_UPDATE_CURRENT);
