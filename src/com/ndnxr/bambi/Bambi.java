@@ -274,9 +274,10 @@ public class Bambi extends ActionBarActivity {
 	public void schedule_task(View v) {
 		// Create email with attachment
 		String attachment = null;
+		String filename = "smurf2.png";
 		
-		if (this.getFileStreamPath("smurf2.png").exists()) {
-			attachment = this.getFileStreamPath("smurf2.png").getAbsolutePath();
+		if (this.getFileStreamPath(filename).exists()) {
+			attachment = this.getFileStreamPath(filename).getAbsolutePath();
 		}
 		
 		Email email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "subject here", "message", new String[]{"cs246rocks@gmail.com"}, new String[]{ attachment });
