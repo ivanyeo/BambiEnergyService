@@ -99,7 +99,7 @@ public class BambiEnergyService extends Service {
 			break;
 		}
 
-		// Get Intent message and check against Bambi
+		// Get Intent message and check against BambiLib
 		message = intent.getIntExtra(BambiLib.MESSAGE_STORE, 0);
 
 		switch (message) {
