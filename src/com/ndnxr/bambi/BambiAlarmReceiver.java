@@ -11,15 +11,15 @@ public class BambiAlarmReceiver extends BroadcastReceiver {
 		G.Log("BambiAlarmReceiver::onReceive()");
 
 		// Get Intent message
-		int message = intent.getIntExtra(BambiAlarm.MESSAGE_ALARM, 0);
+		int message = intent.getIntExtra(BambiMessages.MESSAGE_ALARM, 0);
 
 		switch (message) {
-		case BambiAlarm.MESSAGE_ALARM_ARRIVED:
+		case BambiMessages.MESSAGE_ALARM_ARRIVED:
 			// Create service intent
 			Intent serviceIntent = new Intent(context, BambiEnergyService.class);
 			
 			// Append Message
-			serviceIntent.putExtra(BambiAlarm.MESSAGE_ALARM, BambiAlarm.MESSAGE_ALARM_ARRIVED);
+			serviceIntent.putExtra(BambiMessages.MESSAGE_ALARM, BambiMessages.MESSAGE_ALARM_ARRIVED);
 			
 			// Start service
 			context.startService(serviceIntent);
