@@ -176,6 +176,43 @@ public class Bambi extends ActionBarActivity {
 
 		G.Log("Wifi RSSI: " + signalStrength);
 	}
+	
+	public void wifi_test(View v) {
+		// Normal Task
+		// Create email
+		Email email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "subject here", "message", new String[]{"cs246rocks@gmail.com"}, null);
+		
+		// Create a task
+		Task task = new Task(TASK_TYPE.EMAIL, URGENCY.NORMAL, null, email);
+
+		// Create instance of BambiLib
+		BambiLib bambiLib = new BambiLib(this);
+
+		// Send email
+		boolean output = bambiLib.sendEmail(task);
+		G.Log("wifi_test(): Normal Task Scheduled!");
+		
+		
+		// Schedule Task
+		// Create Deadline
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(new Date());
+		calendar.add(Calendar.MINUTE, 8);
+
+		Date deadline = calendar.getTime();
+
+		// Create a task
+		task = new Task(TASK_TYPE.EMAIL, URGENCY.SCHEDULE, deadline, email);
+		
+		// Send email
+		output = bambiLib.sendEmail(task);
+
+		// Shutdown Lib
+		bambiLib.shutdown();
+
+		G.Log("Here we go: " + output);
+		G.Log("wifi_test() DONE!");		
+	}
 
 	// Capture of Signal Strength
 	class SS {

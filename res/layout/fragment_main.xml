@@ -156,9 +156,19 @@
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/button7"
-        android:layout_alignRight="@+id/button12"
+        android:layout_below="@+id/button12"
+        android:layout_toRightOf="@+id/button7"
         android:onClick="schedule_1min_mail"
         android:text="T1Min" />
+
+    <Button
+        android:id="@+id/button17"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/button16"
+        android:onClick="wifi_test"
+        android:text="Wifi" />
 
 </RelativeLayout>
