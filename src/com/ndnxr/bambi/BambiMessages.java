@@ -21,4 +21,10 @@ public class BambiMessages {
 	// Wifi Connected Messages
 	public static final int MESSAGE_WIFI_CONNECTED_ARRIVED = 3;
 
+	
+	// Wifi Disconnected Message: Key values used for Intent Messages
+	public static final String MESSAGE_WIFI_DISCONNECTED = "WIFI_DISCONNECTED_MESSAGE";
+
+	// Wifi Disonnected Messages
+	public static final int MESSAGE_WIFI_DISCONNECTED_ARRIVED = 3;
 }
