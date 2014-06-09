@@ -19,7 +19,16 @@ public class BambiWifiReceiver extends BroadcastReceiver {
 	        if (intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, false)){
 	        	G.Log("BambiWifiReceiver: Wifi Connected!");
 	        	// Wifi Connected
-	        	// TODO startService() and send all normal and scheduled Tasks
+	        	
+	    		// Create service intent
+	    		Intent serviceIntent = new Intent(context, BambiEnergyService.class);
+
+	    		// Append Message
+	    		serviceIntent.putExtra(BambiMessages.MESSAGE_WIFI_CONNECTED, BambiMessages.MESSAGE_WIFI_CONNECTED_ARRIVED);
+
+	    		// Start service
+	    		context.startService(serviceIntent);
+	    		
 	        } else {
 	        	G.Log("BambiWifiReceiver: Wifi Disonnected!");
 	            // Wifi Disconnected - Nothing needs to be done
