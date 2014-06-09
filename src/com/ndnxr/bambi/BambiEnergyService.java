@@ -130,6 +130,34 @@ public class BambiEnergyService extends Service {
 			break;
 		}
 
+		// Get Intent message and check against BambiMessages
+		message = intent.getIntExtra(BambiMessages.MESSAGE_WIFI_CONNECTED, 0);
+
+		switch (message) {
+		case BambiMessages.MESSAGE_WIFI_CONNECTED_ARRIVED:
+			/***
+			 * Process Tasks in the:
+			 * 		(1) Normal List
+			 * 		(2) Schedule List
+			 *
+			 * Run all these in a seperate Thread and invoke bambiStopSelf().
+			 */
+			G.Log("BambiEnergyService::onStartCommand(): MESSAGE_WIFI_CONNECTED_ARRIVED");
+
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					// Invoke function to process Wifi required Tasks
+					processWifiConnected();
+
+					G.Log("MESSAGE_WIFI_CONNECTED_ARRIVED: DONE RUNNABLE THREAD!");
+
+					bambiStopSelf();
+				}
+			}).start();
+
+			break;
+		}
 		// Get Intent message and check against BambiLib
 		message = intent.getIntExtra(BambiLib.MESSAGE_STORE, 0);
 
@@ -158,6 +186,30 @@ public class BambiEnergyService extends Service {
 		// deliver, then the service will be scheduled to start with the last
 		// intent being re-delivered.
 		return Service.START_REDELIVER_INTENT;
+	}
+	
+	/**
+	 * Method that processes tasks on the normalTaskList as well as the scheduleTaskList.
+	 * 
+	 */
+	private void processWifiConnected() {
+		// Process Tasks
+		synchronized (scheduleTaskList) {
+			// Iterate through Tasks
+			for (Task t : scheduleTaskList) {
+				// Process Task
+				processTask(t);
+			}
+		}
+
+		// Process Tasks
+		synchronized (normalTaskList) {
+			// Iterate through Tasks
+			for (Task t : normalTaskList) {
+				// Process Task
+				processTask(t);
+			}
+		}
 	}
 	
 	/**
