@@ -18,6 +18,8 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -52,6 +54,9 @@ public class BambiEnergyService extends Service {
 	// Private startId so that Service is not accidentally stopped when
 	// stopSelf(startId) is invoked
 	private static int startId = 0;
+	
+	// Private variable to mark if Wifi is connected
+	private boolean wifiConnected = false;
 
 	@Override
 	public void onCreate() {
@@ -60,6 +65,15 @@ public class BambiEnergyService extends Service {
 		
 		// Load Bambi Service Tasks
 		loadBambiTasks();
+		
+		// Check for Wifi connection
+		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo wifiNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+		if (wifiNetworkInfo.isConnected()) {
+		    // Flag that Wifi Data Transmission is possible
+			wifiConnected = true;
+		}
 
 		G.Log("BambiEnergyService::onCreate()");
 	}
@@ -423,6 +437,9 @@ public class BambiEnergyService extends Service {
 
 			// Finally, schedule the Task
 			scheduleTask(task);
+
+			// ... and Shutdown Service
+			bambiStopSelf();
 
 			G.Log("Cell Signal Strength: " + task.getCellSignalStrengthDbm());
 		} else {
