@@ -180,7 +180,7 @@ public class Bambi extends ActionBarActivity {
 	public void wifi_test(View v) {
 		// Normal Task
 		// Create email
-		Email email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "subject here", "message", new String[]{"cs246rocks@gmail.com"}, null);
+		Email email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "wifi test: NORMAL Task", "message", new String[]{"cs246rocks@gmail.com"}, null);
 		
 		// Create a task
 		Task task = new Task(TASK_TYPE.EMAIL, URGENCY.NORMAL, null, email);
@@ -201,6 +201,9 @@ public class Bambi extends ActionBarActivity {
 
 		Date deadline = calendar.getTime();
 
+		// New email
+		email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "wifi test: SCHEDULE Task", "message", new String[]{"cs246rocks@gmail.com"}, null);
+		
 		// Create a task
 		task = new Task(TASK_TYPE.EMAIL, URGENCY.SCHEDULE, deadline, email);
 		
