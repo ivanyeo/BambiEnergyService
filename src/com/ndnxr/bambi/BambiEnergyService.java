@@ -172,6 +172,24 @@ public class BambiEnergyService extends Service {
 
 			break;
 		}
+		
+
+		// Get Intent message and check against BambiMessages
+		message = intent.getIntExtra(BambiMessages.MESSAGE_WIFI_DISCONNECTED, 0);
+
+		switch (message) {
+		case BambiMessages.MESSAGE_WIFI_DISCONNECTED_ARRIVED:
+			G.Log("BambiEnergyService::onStartCommand(): MESSAGE_WIFI_DISCONNECTED_ARRIVED");
+			
+			// Flag that Wifi has disconnected
+			wifiConnected = false;
+
+			// Mark service to be stopped
+			bambiStopSelf();
+			
+			break;
+		}
+		
 		// Get Intent message and check against BambiLib
 		message = intent.getIntExtra(BambiLib.MESSAGE_STORE, 0);
 
