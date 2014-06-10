@@ -540,8 +540,15 @@ public class BambiEnergyService extends Service {
 		
 		// Check for Wifi connection
 		if (wifiConnected) {
-			// Process task now
-			processTask(task);
+			final Task t = task;
+			
+			// Process task in a new Thread now, so as not to block the main Thread.
+			new Thread(new Runnable(){
+				@Override
+				public void run() {
+					processTask(t);
+				}
+			}).start();
 			
 			return;
 		}
