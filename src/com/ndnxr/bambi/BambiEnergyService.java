@@ -157,7 +157,11 @@ public class BambiEnergyService extends Service {
 			 * Run all these in a seperate Thread and invoke bambiStopSelf().
 			 */
 			G.Log("BambiEnergyService::onStartCommand(): MESSAGE_WIFI_CONNECTED_ARRIVED");
-
+			
+			// Flag Wifi Connected
+			wifiConnected = true;
+			
+			// Process Tasks
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
@@ -232,6 +236,9 @@ public class BambiEnergyService extends Service {
 				// Process Task
 				processTask(t);
 			}
+			
+			// Empty the list
+			scheduleTaskList.clear();
 		}
 
 		// Process Tasks
@@ -241,6 +248,9 @@ public class BambiEnergyService extends Service {
 				// Process Task
 				processTask(t);
 			}
+			
+			// Empty the list
+			normalTaskList.clear();
 		}
 	}
 	
@@ -521,10 +531,21 @@ public class BambiEnergyService extends Service {
 	 * an alarm if any. This function does not stop the service; it merely
 	 * schedules the Task.
 	 * 
-	 * @param task
-	 *            Task to be scheduled
+	 * @param task Task to be scheduled
+	 * 
 	 */
 	private void scheduleTask(Task task) {
+		// If Wifi connection is available, there is no point scheduling the Task
+		// or adding it to the normal Task list (to await Wifi connection). 
+		
+		// Check for Wifi connection
+		if (wifiConnected) {
+			// Process task now
+			processTask(task);
+			
+			return;
+		}
+
 		switch (task.getUrgency()) {
 		case SCHEDULE:
 			// (1) Place in the schedule list
@@ -554,7 +575,7 @@ public class BambiEnergyService extends Service {
 			break;
 		case NORMAL:
 			// Add Task to the Normal Task list ... i.e waiting for Wifi
-			normalTaskList.add(task);
+			normalTaskList.add(task);	
 
 			G.Log("BambiEnergyService::scheduleTask() NORMAL Task.");
 			break;
