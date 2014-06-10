@@ -347,7 +347,7 @@ public class Bambi extends ActionBarActivity {
 
 	public void schedule_normal_task(View v) {
 		// Create email
-		Email email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "subject here", "message", new String[]{"cs246rocks@gmail.com"}, null);
+		Email email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "subject here: NORMAL TASK", "message", new String[]{"cs246rocks@gmail.com"}, null);
 		
 		// Create a task
 		Task task = new Task(TASK_TYPE.EMAIL, URGENCY.NORMAL, null, email);
