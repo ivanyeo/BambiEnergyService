@@ -15,7 +15,6 @@ import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,7 +26,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
-import android.os.Parcelable;
 import android.os.RemoteException;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoCdma;
@@ -342,12 +340,61 @@ public class BambiEnergyService extends Service {
 				G.Log("BambiEnergyService::processTask(): Error while sendnig email.");
 			}
 			
+			// Update number of bytes that was sent out
+			long totalBytes = 0L;
+			
+			// Get number of bytes for each item
+			totalBytes += email.getFrom().length() + email.getSubject().length() + email.getMessage().length();
+			
+			for (String to : email.getToArray()) {
+				if (to != null) {
+					totalBytes += to.length();
+				}
+			}
+			
+			if (email.getFilePaths().length > 0) {
+				for (String filepath : email.getFilePaths()) {
+					if (filepath != null && !filepath.equals("")) {
+						File file = new File(filepath);
+						
+						totalBytes += file.length();
+					}
+				}
+			}
+			
+			// Update shared preferences
+			mUpdateTotalBytesProcessed(totalBytes);
+			
 			break;
 			
 		default:
 			throw new RuntimeException("Invalid TASK_TYPE.");
 		}
 
+	}
+	
+	/**
+	 * Method thta updates the total number of bytes that passed through BambiEnergyService.
+	 * 
+	 * @param addBytes Number of bytes to be added to the master record
+	 */
+	private void mUpdateTotalBytesProcessed(long addBytes) {
+
+		// Get from SharedPreferences
+		SharedPreferences sharedPref = BambiEnergyService.this
+				.getApplicationContext().getSharedPreferences(
+						G.ENERGY_SERVICE_PREFERENCE_FILE_KEY,
+						Context.MODE_PRIVATE);
+		long totalBytes = sharedPref.getLong(
+				G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH, (long) 0);
+
+		// Get an editor to update the value
+		SharedPreferences.Editor editor = sharedPref.edit();
+
+		// Update and save value
+		totalBytes += addBytes;
+		editor.putLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH, totalBytes);
+		editor.commit();
 	}
 	
 	/**
