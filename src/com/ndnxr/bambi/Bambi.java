@@ -2,6 +2,7 @@ package com.ndnxr.bambi;
 
 import info.androidhive.tabsswipe.adapter.TabsPagerAdapter;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -679,6 +680,22 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 				G.Log("MESSAGE_PROCESS_TASK_COMPLETE");
 				
 				break;
+			
+			// Message that BambiEnergyService replies with a TaskList
+			case BambiMessages.MESSAGE_REPLY_TASK_LIST:
+				
+				// TODO: Update UI with the  new Task List
+				G.Log("MESSAGE_REPLY_TASK_LIST");
+				
+				// Extract ArrayList<Task>
+				ArrayList<Task> replyList = (ArrayList<Task>) msg.obj;
+				
+				for (Task t : replyList) {
+					G.Log("" + t.getType());
+				}
+				
+				break;
+				
 			default:
 				super.handleMessage(msg);
 				break;
