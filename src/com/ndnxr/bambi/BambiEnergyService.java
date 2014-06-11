@@ -365,6 +365,9 @@ public class BambiEnergyService extends Service {
 			// Update shared preferences
 			mUpdateTotalBytesProcessed(totalBytes);
 			
+			// Message connected receivers
+			mUpdateConnectedReceivers();
+			
 			break;
 			
 		default:
@@ -395,6 +398,24 @@ public class BambiEnergyService extends Service {
 		totalBytes += addBytes;
 		editor.putLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH, totalBytes);
 		editor.commit();
+	}
+	
+	/**
+	 * Message connected receivers that new data has passed through BambiEnergyService.
+	 */
+	private void mUpdateConnectedReceivers() {
+		if (!mClients.isEmpty()) {
+			
+			// Create Message
+			for (Messenger m : mClients) {
+				// Message Clients
+				try {
+					m.send(Message.obtain(null, BambiLib.MESSAGE_PROCESS_TASK_COMPLETE));
+				} catch (RemoteException e) {
+					G.Log("mUpdateConnectedReceivers(): ERROR: " + e.getMessage());
+				}
+			}
+		}
 	}
 	
 	/**
