@@ -671,6 +671,14 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 
 				G.Log("MESSAGE_REPLY_TOTAL_BYTES: " + totalBytes);
 				break;
+				
+			// Message that BambiEnergyService has completed processing a Task
+			case BambiLib.MESSAGE_PROCESS_TASK_COMPLETE:
+				
+				// TODO: Get from Bambi a new set of data
+				G.Log("MESSAGE_PROCESS_TASK_COMPLETE");
+				
+				break;
 			default:
 				super.handleMessage(msg);
 				break;
