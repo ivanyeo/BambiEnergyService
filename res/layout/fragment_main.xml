@@ -171,7 +171,7 @@
         android:layout_alignRight="@+id/button11"
         android:layout_alignTop="@+id/button18"
         android:onClick="wifi_test"
-        android:text="Wifi" />
+        android:text="ClearPref" />
 
     <Button
         android:id="@+id/button19"
