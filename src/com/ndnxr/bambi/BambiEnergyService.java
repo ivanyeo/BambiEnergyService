@@ -291,6 +291,21 @@ public class BambiEnergyService extends Service {
 	private void processTask(Task task) {
 		G.Log("processTask(): TaskType: " + task.getType());
 		
+		// Ensure that connection can be established
+		{
+			for (int i=0; i<G.WIFI_RETRY_COUNT; i++) {
+				try {
+					if (!isWifiConnected()) {
+						Thread.sleep(G.WIFI_RETRY_TIMEOUT);
+					} else {
+						break;
+					}
+				} catch (InterruptedException e) {
+					G.Log("BambiEnergyService::processTask(): Wifi RETRY interrupted.");
+				}
+			}
+		}
+		
 		// Process Task according to Task type
 		switch (task.getType()) {
 		case EMAIL:
@@ -624,6 +639,21 @@ public class BambiEnergyService extends Service {
 
 		// Invoke stop
 		BambiEnergyService.this.stopSelf(startId);
+	}
+	
+	/**
+	 * Checks the NetworkInfo to see if Wifi is connected and data can be sent out
+	 * through the Wifi connection. 
+	 * 
+	 * @return Returns true when wifi data transmission is possible; false otherwise.
+	 */
+	private boolean isWifiConnected() {
+		// Check for Wifi connection
+		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo wifiNetworkInfo = connectivityManager
+				.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+		return wifiNetworkInfo.isConnected();
 	}
 
 	/**
