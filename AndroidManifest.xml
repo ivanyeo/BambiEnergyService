@@ -34,7 +34,8 @@
             android:name="com.ndnxr.bambi.BambiEnergyService"
             android:process="com.ndnxr.bambienergyservice"
             android:icon="@drawable/ic_launcher"
-            android:label="@string/service_name" >
+            android:label="@string/service_name"
+            android:exported="true" >
         </service>
         
         <receiver 
