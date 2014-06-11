@@ -28,10 +28,17 @@ public class BambiMessages {
 	// Wifi Disonnected Messages
 	public static final int MESSAGE_WIFI_DISCONNECTED_ARRIVED = 3;
 	
-	
-//	public static final String MESSAGE_GET_SERVICE_INFORMATION = "MESSAGE_GET_SERVICE_INFORMATION";
+
+	// Getting of the total number of bytes that pass through BambiEnergyService
 	public static final int MESSAGE_GET_TOTAL_BYTES = 4;
 	public static final int MESSAGE_REPLY_TOTAL_BYTES = 5;
 	
+	// Message to be sent to BambiEnergyService to save the new total number of bytes passed in a Bundle
 	public static final int MESSAGE_SAVE_TOTAL_BYTES = 6;
+	
+	
+	// Getting of ArrayList<Task> from BambiEnergyService
+	public static final int MESSAGE_GET_TASK_LIST = 7;
+	public static final int MESSAGE_REPLY_TASK_LIST = 8;
+	
 }
