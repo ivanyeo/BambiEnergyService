@@ -1,0 +1,19 @@
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/chart_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#63B8FF"
+    android:orientation="vertical" >
+     
+    <!-- 
+    <TextView android:layout_width="fill_parent"  
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Design Energy Meter Screen"
+        android:textSize="20dp"
+        android:layout_centerInParent="true"/>
+      -->
+
+ 
+</LinearLayout>
