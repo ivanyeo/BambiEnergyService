@@ -1,9 +1,13 @@
 package com.ndnxr.bambi;
 
+import info.androidhive.tabsswipe.adapter.TabsPagerAdapter;
+
 import java.util.Calendar;
 import java.util.Date;
 
 import android.annotation.TargetApi;
+import android.app.ActionBar;
+import android.app.ActionBar.Tab;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -19,7 +23,9 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoCdma;
 import android.telephony.CellInfoGsm;
@@ -38,16 +44,57 @@ import android.widget.Toast;
 import com.ndnxr.bambi.BambiLib.TASK_TYPE;
 import com.ndnxr.bambi.BambiLib.URGENCY;
 
-public class Bambi extends ActionBarActivity {
+public class Bambi extends FragmentActivity implements ActionBar.TabListener {
+	
+	// Declare UI Member
+	private ViewPager viewPager;
+    private TabsPagerAdapter mAdapter;
+    private android.app.ActionBar actionBar;
+    // Tab titles
+    private String[] tabs = { "Energy Meter", "Task List", "App List" };
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		 
+        // Initialization
+        viewPager = (ViewPager) findViewById(R.id.pager);
+        actionBar = getActionBar();
+        mAdapter = new TabsPagerAdapter(getSupportFragmentManager());
+ 
+        viewPager.setAdapter(mAdapter);
+        actionBar.setHomeButtonEnabled(false);
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);        
+ 
+        // Adding Tabs
+        for (String tab_name : tabs) {
+            actionBar.addTab(actionBar.newTab().setText(tab_name)
+                    .setTabListener(this));
+        }
 
+        // on swiping the view pager make respective tab selected
+        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+ 
+            @Override
+            public void onPageSelected(int position) {
+                // on changing the page
+                // make respected tab selected
+                actionBar.setSelectedNavigationItem(position);
+            }
+ 
+            @Override
+            public void onPageScrolled(int arg0, float arg1, int arg2) {
+            }
+ 
+            @Override
+            public void onPageScrollStateChanged(int arg0) {
+            }
+        });
+        
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
-					.add(R.id.container, new PlaceholderFragment()).commit();
+					.add(R.id.pager, new PlaceholderFragment()).commit();
 		}
 	}
 
@@ -647,5 +694,57 @@ public class Bambi extends ActionBarActivity {
 			return rootView;
 		}
 	}
+	
+	/**
+	 * Implement ActionBar.TabListener Integration
+	 */
+	public void onTabReselected(Tab arg0, FragmentTransaction arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void onTabSelected(Tab tab, FragmentTransaction arg1) {
+		
+	}
+
+	public void onTabUnselected(Tab arg0, FragmentTransaction arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void onTabReselected(android.support.v7.app.ActionBar.Tab arg0,
+			FragmentTransaction arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+
+
+	public void onTabUnselected(android.support.v7.app.ActionBar.Tab arg0,
+			FragmentTransaction arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onTabReselected(Tab arg0, android.app.FragmentTransaction arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onTabSelected(Tab tab, android.app.FragmentTransaction arg1) {
+		// on tab selected
+        // show respected fragment view
+        viewPager.setCurrentItem(tab.getPosition());
+		
+	}
+
+	@Override
+	public void onTabUnselected(Tab arg0, android.app.FragmentTransaction arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 
 }
