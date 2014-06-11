@@ -18,9 +18,11 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -709,7 +711,54 @@ public class BambiEnergyService extends Service {
 
 				G.Log("BAMBISERVICE, Email: " + email.toString());
 				break;
-
+				
+			case BambiMessages.MESSAGE_GET_TOTAL_BYTES:
+			{
+				G.Log("BambiServiceHandler: MESSAGE_GET_TOTAL_CHARS");
+				
+				// Get from SharedPreferences
+				SharedPreferences sharedPref = BambiEnergyService.this.getApplicationContext().getSharedPreferences(G.ENERGY_SERVICE_PREFERENCE_FILE_KEY, Context.MODE_PRIVATE);
+				long totalBytes = sharedPref.getLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH, (long) 0);
+				
+				// Reply to client
+				try {
+					// Get a Message from the System
+					Message replyMessage = Message.obtain(null, BambiMessages.MESSAGE_REPLY_TOTAL_BYTES);
+					
+					// Create a bundle
+					Bundle bundle = new Bundle();
+					bundle.putLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH, totalBytes);
+					
+					// Put bundle along with the message
+					replyMessage.setData(bundle);
+					
+					// Send Message
+					msg.replyTo.send(replyMessage);
+				} catch (RemoteException e) {
+					// Client dead
+					mClients.remove(msg.replyTo);
+				}
+				break;
+			}
+			
+			case BambiMessages.MESSAGE_SAVE_TOTAL_BYTES:
+			{
+				G.Log("BambiServiceHandler: MESSAGE_SAVE_TOTAL_BYTES");
+				
+				// Get from SharedPreferences
+				SharedPreferences sharedPref = BambiEnergyService.this.getApplicationContext().getSharedPreferences(G.ENERGY_SERVICE_PREFERENCE_FILE_KEY, Context.MODE_PRIVATE);
+				SharedPreferences.Editor editor = sharedPref.edit();
+				
+				// Get bundle
+				Bundle bundle = msg.getData();
+				long totalBytes = bundle.getLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH);
+				editor.putLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH, totalBytes);
+				editor.commit();
+				
+				G.Log("BambiServiceHandler: MESSAGE_SAVE_TOTAL_BYTES: " + totalBytes);
+				break;
+			}
+			
 			default:
 				// Pass on to the super class
 				super.handleMessage(msg);
