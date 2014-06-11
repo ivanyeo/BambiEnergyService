@@ -27,4 +27,11 @@ public class BambiMessages {
 
 	// Wifi Disonnected Messages
 	public static final int MESSAGE_WIFI_DISCONNECTED_ARRIVED = 3;
+	
+	
+//	public static final String MESSAGE_GET_SERVICE_INFORMATION = "MESSAGE_GET_SERVICE_INFORMATION";
+	public static final int MESSAGE_GET_TOTAL_BYTES = 4;
+	public static final int MESSAGE_REPLY_TOTAL_BYTES = 5;
+	
+	public static final int MESSAGE_SAVE_TOTAL_BYTES = 6;
 }
