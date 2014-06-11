@@ -827,6 +827,44 @@ public class BambiEnergyService extends Service {
 				break;
 			}
 			
+			case BambiMessages.MESSAGE_GET_TASK_LIST:
+			{
+				// Build new TaskList
+				ArrayList<Task> replyList = new ArrayList<Task>();
+				
+				synchronized (scheduleTaskList) {
+					if (!scheduleTaskList.isEmpty()) {
+						for (Task t : scheduleTaskList) {
+							replyList.add(t);
+						}
+					}
+				}
+				
+				synchronized (normalTaskList) {
+					if (!normalTaskList.isEmpty()) {
+						for (Task t : normalTaskList) {
+							replyList.add(t);
+						}
+					}
+				}
+				
+				// Reply to client
+				try {
+					// Get a Message from the System
+					Message replyMessage = Message.obtain(null, BambiMessages.MESSAGE_REPLY_TASK_LIST);
+					
+					// Set parcelable object
+					replyMessage.obj = replyList;
+					
+					// Send Message
+					msg.replyTo.send(replyMessage);
+				} catch (RemoteException e) {
+					// Client dead
+					mClients.remove(msg.replyTo);
+				}
+				break;
+			}
+			
 			default:
 				// Pass on to the super class
 				super.handleMessage(msg);
