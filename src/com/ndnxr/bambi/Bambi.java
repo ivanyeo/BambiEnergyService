@@ -325,7 +325,8 @@ public class Bambi extends ActionBarActivity {
 		// Create Deadline
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(new Date());
-		calendar.add(Calendar.SECOND, 8);
+//		calendar.add(Calendar.SECOND, 8);
+		calendar.add(Calendar.MINUTE, 8);
 
 		Date deadline = calendar.getTime();
 
