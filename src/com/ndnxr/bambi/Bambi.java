@@ -52,6 +52,22 @@ public class Bambi extends ActionBarActivity {
 	}
 
 	@Override
+	protected void onStart() {
+		super.onStart();
+
+		// Bind to BambiEnergyService
+		bindBambiService();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+
+		// Unbind from BambiEnergyService
+		unbindBambiService();
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
@@ -139,7 +155,9 @@ public class Bambi extends ActionBarActivity {
 
 	public void send_email(View v) {
 		// Create email
-		Email email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "subject here", "message", new String[]{"cs246rocks@gmail.com"}, null);
+		Email email = new Email("cs246rocks@gmail.com", "cs202rocks",
+				"smtp.gmail.com", "465", "woot", "subject here", "message",
+				new String[] { "cs246rocks@gmail.com" }, null);
 
 		// Create a task
 		Task task = new Task(TASK_TYPE.EMAIL, URGENCY.URGENT, null, email);
@@ -176,12 +194,14 @@ public class Bambi extends ActionBarActivity {
 
 		G.Log("Wifi RSSI: " + signalStrength);
 	}
-	
+
 	public void wifi_test(View v) {
 		// Normal Task
 		// Create email
-		Email email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "wifi test: NORMAL Task", "message", new String[]{"cs246rocks@gmail.com"}, null);
-		
+		Email email = new Email("cs246rocks@gmail.com", "cs202rocks",
+				"smtp.gmail.com", "465", "woot", "wifi test: NORMAL Task",
+				"message", new String[] { "cs246rocks@gmail.com" }, null);
+
 		// Create a task
 		Task task = new Task(TASK_TYPE.EMAIL, URGENCY.NORMAL, null, email);
 
@@ -191,8 +211,7 @@ public class Bambi extends ActionBarActivity {
 		// Send email
 		boolean output = bambiLib.sendEmail(task);
 		G.Log("wifi_test(): Normal Task Scheduled!");
-		
-		
+
 		// Schedule Task
 		// Create Deadline
 		Calendar calendar = Calendar.getInstance();
@@ -202,11 +221,13 @@ public class Bambi extends ActionBarActivity {
 		Date deadline = calendar.getTime();
 
 		// New email
-		email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "wifi test: SCHEDULE Task", "message", new String[]{"cs246rocks@gmail.com"}, null);
-		
+		email = new Email("cs246rocks@gmail.com", "cs202rocks",
+				"smtp.gmail.com", "465", "woot", "wifi test: SCHEDULE Task",
+				"message", new String[] { "cs246rocks@gmail.com" }, null);
+
 		// Create a task
 		task = new Task(TASK_TYPE.EMAIL, URGENCY.SCHEDULE, deadline, email);
-		
+
 		// Send email
 		output = bambiLib.sendEmail(task);
 
@@ -214,7 +235,7 @@ public class Bambi extends ActionBarActivity {
 		bambiLib.shutdown();
 
 		G.Log("Here we go: " + output);
-		G.Log("wifi_test() DONE!");		
+		G.Log("wifi_test() DONE!");
 	}
 
 	// Capture of Signal Strength
@@ -315,17 +336,20 @@ public class Bambi extends ActionBarActivity {
 		// Create email with attachment
 		String attachment = null;
 		String filename = "smurf2.png";
-		
+
 		if (this.getFileStreamPath(filename).exists()) {
 			attachment = this.getFileStreamPath(filename).getAbsolutePath();
 		}
-		
-		Email email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "subject here", "message", new String[]{"cs246rocks@gmail.com"}, new String[]{ attachment });
-		
+
+		Email email = new Email("cs246rocks@gmail.com", "cs202rocks",
+				"smtp.gmail.com", "465", "woot", "subject here", "message",
+				new String[] { "cs246rocks@gmail.com" },
+				new String[] { attachment });
+
 		// Create Deadline
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(new Date());
-//		calendar.add(Calendar.SECOND, 8);
+		// calendar.add(Calendar.SECOND, 8);
 		calendar.add(Calendar.MINUTE, 8);
 
 		Date deadline = calendar.getTime();
@@ -348,8 +372,10 @@ public class Bambi extends ActionBarActivity {
 
 	public void schedule_normal_task(View v) {
 		// Create email
-		Email email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "subject here: NORMAL TASK", "message", new String[]{"cs246rocks@gmail.com"}, null);
-		
+		Email email = new Email("cs246rocks@gmail.com", "cs202rocks",
+				"smtp.gmail.com", "465", "woot", "subject here: NORMAL TASK",
+				"message", new String[] { "cs246rocks@gmail.com" }, null);
+
 		// Create a task
 		Task task = new Task(TASK_TYPE.EMAIL, URGENCY.NORMAL, null, email);
 
@@ -365,18 +391,21 @@ public class Bambi extends ActionBarActivity {
 		G.Log("Here we go: " + output);
 		G.Log("schedule_normal_task() DONE!");
 	}
-	
+
 	public void schedule_1min_mail(View v) {
 		// Create email with attachment
 		String attachment = null;
 		String filename = "smurf2.png";
-		
+
 		if (this.getFileStreamPath(filename).exists()) {
 			attachment = this.getFileStreamPath(filename).getAbsolutePath();
 		}
-		
-		Email email = new Email("cs246rocks@gmail.com", "cs202rocks", "smtp.gmail.com", "465", "woot", "subject here", "message", new String[]{"cs246rocks@gmail.com"}, new String[]{ attachment });
-		
+
+		Email email = new Email("cs246rocks@gmail.com", "cs202rocks",
+				"smtp.gmail.com", "465", "woot", "subject here", "message",
+				new String[] { "cs246rocks@gmail.com" },
+				new String[] { attachment });
+
 		// Create Deadline
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(new Date());
@@ -401,14 +430,15 @@ public class Bambi extends ActionBarActivity {
 	}
 
 	public void delete_all_files(View v) {
-		//G.Log("Not implemented.");
+		// G.Log("Not implemented.");
 		G.Log("Deleting files ...");
-		String [] files = { "FILE_NORMAL_TASKS", "FILE_SCHEDULE_TASKS", "FILE_CALLBACK_TASKS"};
-		
+		String[] files = { "FILE_NORMAL_TASKS", "FILE_SCHEDULE_TASKS",
+				"FILE_CALLBACK_TASKS" };
+
 		for (String file : files) {
 			this.deleteFile(file);
 		}
-		
+
 		G.Log("Done deleting all files.");
 	}
 
@@ -422,14 +452,14 @@ public class Bambi extends ActionBarActivity {
 		m.messageBody = "Email body.";
 
 		try {
-//			m.addAttachment("/sdcard/filelocation");
+			// m.addAttachment("/sdcard/filelocation");
 
 			if (m.sendEmail()) {
 				Toast.makeText(this, "Email was sent successfully.",
 						Toast.LENGTH_LONG).show();
 			} else {
-				Toast.makeText(this, "Email was not sent.",
-						Toast.LENGTH_LONG).show();
+				Toast.makeText(this, "Email was not sent.", Toast.LENGTH_LONG)
+						.show();
 			}
 		} catch (Exception e) {
 			// Toast.makeText(MailApp.this,
@@ -437,6 +467,55 @@ public class Bambi extends ActionBarActivity {
 			// Toast.LENGTH_LONG).show();
 			G.Log("Could not send email");
 		}
+	}
+
+	public void get_service_message(View v) {
+		sendMessageToBambiService(BambiMessages.MESSAGE_GET_TOTAL_BYTES);
+
+		G.Log("get_service_message() DONE!");
+	}
+
+	public void save_service_message(View v) {
+		// Make request to BambiEnergyService using System message
+		try {
+			// Get system message
+			Message msg = Message.obtain(null, BambiMessages.MESSAGE_SAVE_TOTAL_BYTES);
+			
+			// Create bundle
+			Bundle bundle = new Bundle();
+			bundle.putLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH, 6969L);
+			
+			msg.setData(bundle);
+
+			// Set replyTo handler
+			msg.replyTo = mClientMessenger;
+
+			// Send message to BambiEnergyService using the messenger
+			mBambiServiceMessenger.send(msg);
+		} catch (RemoteException e) {
+			// If Service crashes, nothing to do here
+		}
+		
+		G.Log("Message saved.");
+	}
+
+	private boolean sendMessageToBambiService(int message) {
+		// Make request to BambiEnergyService using System message
+		try {
+			// Get system message
+			Message msg = Message.obtain(null, message);
+
+			// Set replyTo handler
+			msg.replyTo = mClientMessenger;
+
+			// Send message to BambiEnergyService using the messenger
+			mBambiServiceMessenger.send(msg);
+		} catch (RemoteException e) {
+			// If Service crashes, nothing to do here
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -535,6 +614,15 @@ public class Bambi extends ActionBarActivity {
 				break;
 			case BambiLib.MESSAGE_UNREGISTER_SUCCESS:
 				G.Log("ClientHandler::handleMessage(): MESSAGE_UNREGISTER_SUCCESS");
+				break;
+
+			// Messages that came from BambiEnergyService as replies
+			case BambiMessages.MESSAGE_REPLY_TOTAL_BYTES:
+				Bundle bundle = msg.getData();
+				long totalBytes = bundle
+						.getLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH);
+
+				G.Log("MESSAGE_REPLY_TOTAL_BYTES: " + totalBytes);
 				break;
 			default:
 				super.handleMessage(msg);
