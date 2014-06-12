@@ -2,9 +2,8 @@ package com.ndnxr.bambi;
 
 
 import java.util.ArrayList;
-
 import com.ndnxr.bambi.R;
-
+import android.annotation.SuppressLint;
 import android.app.ActionBar.LayoutParams;
 import android.content.Context;
 import android.graphics.Color;
@@ -18,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TextView;
  
@@ -34,11 +34,10 @@ public class TaskListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
     	
-    	   	
+    	G.Log("OnCreateView of TaskList");
         View rootView = inflater.inflate(R.layout.fragment_task_list, container, false);
         rootViewLayout = (LinearLayout)rootView;
             
-        initialTable(this.getActivity());
         
         // Get Screen Size to display relative layout for table
         Display display = this.getActivity().getWindowManager().getDefaultDisplay();
@@ -47,6 +46,10 @@ public class TaskListFragment extends Fragment {
         screen_width = size.x;
         screen_height = size.y;
         tableRowNumberPerPage = 10;
+        
+        // Get task list from Bambi, draw table
+        ArrayList<Task> replyList = ((Bambi)this.getActivity()).taskList;
+        drawTable(this.getActivity(), replyList);
            		
         return rootView;
         
@@ -56,14 +59,23 @@ public class TaskListFragment extends Fragment {
      * @param context
      * @param replyList
      */   
-    public void drawTable(Context context, ArrayList<Task> replyList ){
-	
+    @SuppressLint("ResourceAsColor")
+	public void drawTable(Context context, ArrayList<Task> replyList ){
+    		
     	// Clear old table view
     	rootViewLayout.removeAllViews();
-    	
+    	  	
     	// Initialize table title
     	initialTable(context);
     	
+    	/*
+      	// Create Scroll view
+    	ScrollView scroll = new ScrollView(context);
+    	scroll.setBackgroundColor(android.R.color.transparent);
+    	scroll.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
+   	                                             LayoutParams.FILL_PARENT));  */  	
+    	  
+    	   	
     	for (Task t : replyList) {		
 			G.Log("DrawTable: " + t.getType());
 			
@@ -94,8 +106,11 @@ public class TaskListFragment extends Fragment {
 	            linearLayout.addView(text);
 	    	}
 	          
-	    	rootViewLayout.addView(linearLayout);			
+	    	rootViewLayout.addView(linearLayout);
+	    	//scroll.addView(linearLayout);
 		}
+    	//rootViewLayout.addView(scroll);
+    	
     }
     
     /**
