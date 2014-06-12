@@ -4,6 +4,11 @@
     android:layout_height="fill_parent"
     android:background="#ff8400"
     android:orientation="vertical" >
-
+  <ScrollView
+        android:id="@+id/messageSV"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:fillViewport="true" >
+        </ScrollView>
 
 </LinearLayout>
