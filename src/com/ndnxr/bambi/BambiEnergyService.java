@@ -77,6 +77,7 @@ public class BambiEnergyService extends Service {
 		}
 
 		G.Log("BambiEnergyService::onCreate()");
+		G.Log("BambiEnergyService::TaskList");
 	}
 
 	@Override
