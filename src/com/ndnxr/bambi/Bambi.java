@@ -111,6 +111,7 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		G.Log("onResume is called!");
 		
 		// Wait for Service to start
 		new Thread(new Runnable() {
@@ -130,9 +131,12 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 
 				// Send message to get Task list form BambiEnergyService
 				sendMessageToBambiService(BambiMessages.MESSAGE_GET_TASK_LIST);
+				
+				G.Log("sendMessageToBambiService");
 
 			}
 		}).start();
+		
 	}
 
 	@Override
@@ -763,9 +767,16 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 	 * Update UI to display task list
 	 */
 	private void updateTaskList(ArrayList<Task> replyList) {
-
+		G.Log("UpdateTaskList: RelyList Length: " + replyList.size());
 		mAdapter.taskListFragment.drawTable(this, replyList);
+		taskList = replyList;
+	
 	}
+	
+	/**
+	 * taskList of energy service
+	 */
+	public ArrayList<Task> taskList = new ArrayList<Task> ();
 
 	/**
 	 * Update UI to display total bytes of data transmission
