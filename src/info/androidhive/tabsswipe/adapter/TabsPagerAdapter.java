@@ -8,6 +8,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
  
 public class TabsPagerAdapter extends FragmentPagerAdapter {
+	public EnergyMeterFragment energyMeterFragment;
+	public TaskListFragment taskListFragment;
+	public AppListFragment appListFragment;
  
     public TabsPagerAdapter(FragmentManager fm) {
         super(fm);
@@ -19,13 +22,16 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
         switch (index) {
         case 0:
             // Top Rated fragment activity
-            return new EnergyMeterFragment();
+            energyMeterFragment = new EnergyMeterFragment();
+            return energyMeterFragment;
         case 1:
             // Games fragment activity
-            return new TaskListFragment();
+        	taskListFragment = new TaskListFragment();
+            return taskListFragment;
         case 2:
             // Movies fragment activity
-            return new AppListFragment();
+        	appListFragment = new AppListFragment();
+            return appListFragment;
         }
  
         return null;
