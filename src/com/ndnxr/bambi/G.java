@@ -20,6 +20,11 @@ public class G {
 	public static final int WIFI_RETRY_COUNT = 8;
 	
 	/**
+	 * Amount of time in milliseconds to wait for BambiEnergyService to be started.
+	 */
+	public static final int BAMBI_SERVICE_CONNECTION_WAIT_TIME = 200;
+	
+	/**
 	 * Preference file that is private to BambiEnergyService.
 	 */
 	public static final String ENERGY_SERVICE_PREFERENCE_FILE_KEY = "com.ndnxr.bambienergyservice.SERVICE_PREFERENCE_FILE";
