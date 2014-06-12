@@ -46,53 +46,53 @@ import com.ndnxr.bambi.BambiLib.TASK_TYPE;
 import com.ndnxr.bambi.BambiLib.URGENCY;
 
 public class Bambi extends FragmentActivity implements ActionBar.TabListener {
-	
+
 	// Declare UI Member
 	private ViewPager viewPager;
-    private TabsPagerAdapter mAdapter;
-    private android.app.ActionBar actionBar;
-    // Tab titles
-    private String[] tabs = { "Energy Meter", "Task List", "App List" };
+	private TabsPagerAdapter mAdapter;
+	private android.app.ActionBar actionBar;
+	// Tab titles
+	private String[] tabs = { "Energy Meter", "Task List", "App List" };
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		 
-        // Initialization
-        viewPager = (ViewPager) findViewById(R.id.pager);
-        actionBar = getActionBar();
-        mAdapter = new TabsPagerAdapter(getSupportFragmentManager());
- 
-        viewPager.setAdapter(mAdapter);
-        actionBar.setHomeButtonEnabled(false);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);        
- 
-        // Adding Tabs
-        for (String tab_name : tabs) {
-            actionBar.addTab(actionBar.newTab().setText(tab_name)
-                    .setTabListener(this));
-        }
 
-        // on swiping the view pager make respective tab selected
-        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
- 
-            @Override
-            public void onPageSelected(int position) {
-                // on changing the page
-                // make respected tab selected
-                actionBar.setSelectedNavigationItem(position);
-            }
- 
-            @Override
-            public void onPageScrolled(int arg0, float arg1, int arg2) {
-            }
- 
-            @Override
-            public void onPageScrollStateChanged(int arg0) {
-            }
-        });
-        
+		// Initialization
+		viewPager = (ViewPager) findViewById(R.id.pager);
+		actionBar = getActionBar();
+		mAdapter = new TabsPagerAdapter(getSupportFragmentManager());
+
+		viewPager.setAdapter(mAdapter);
+		actionBar.setHomeButtonEnabled(false);
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+		// Adding Tabs
+		for (String tab_name : tabs) {
+			actionBar.addTab(actionBar.newTab().setText(tab_name)
+					.setTabListener(this));
+		}
+
+		// on swiping the view pager make respective tab selected
+		viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+			@Override
+			public void onPageSelected(int position) {
+				// on changing the page
+				// make respected tab selected
+				actionBar.setSelectedNavigationItem(position);
+			}
+
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) {
+			}
+
+			@Override
+			public void onPageScrollStateChanged(int arg0) {
+			}
+		});
+
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
 					.add(R.id.pager, new PlaceholderFragment()).commit();
@@ -105,9 +105,15 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 
 		// Bind to BambiEnergyService
 		bindBambiService();
+
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
 		
 		// Wait for Service to start
-		new Thread(new Runnable(){
+		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -117,10 +123,14 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 				} catch (InterruptedException e) {
 					G.Log("onStart(): " + e.getMessage());
 				}
-				
-				// Send message to get total number of bytes form BambiEnergyService
+
+				// Send message to get total number of bytes form
+				// BambiEnergyService
 				sendMessageToBambiService(BambiMessages.MESSAGE_GET_TOTAL_BYTES);
-				
+
+				// Send message to get Task list form BambiEnergyService
+				sendMessageToBambiService(BambiMessages.MESSAGE_GET_TASK_LIST);
+
 			}
 		}).start();
 	}
@@ -416,7 +426,7 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(new Date());
 		// calendar.add(Calendar.SECOND, 8);
-		calendar.add(Calendar.MINUTE, 8);
+		calendar.add(Calendar.SECOND, 10);
 
 		Date deadline = calendar.getTime();
 
@@ -545,12 +555,13 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 		// Make request to BambiEnergyService using System message
 		try {
 			// Get system message
-			Message msg = Message.obtain(null, BambiMessages.MESSAGE_SAVE_TOTAL_BYTES);
-			
+			Message msg = Message.obtain(null,
+					BambiMessages.MESSAGE_SAVE_TOTAL_BYTES);
+
 			// Create bundle
 			Bundle bundle = new Bundle();
 			bundle.putLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH, 6969L);
-			
+
 			msg.setData(bundle);
 
 			// Set replyTo handler
@@ -561,7 +572,7 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 		} catch (RemoteException e) {
 			// If Service crashes, nothing to do here
 		}
-		
+
 		G.Log("Message saved.");
 	}
 
@@ -664,6 +675,17 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 			G.Log("mConnection::onServiceDisconnected()");
 		}
 	};
+	
+	
+	/**
+	 * increase total bytes for proof of concept
+	 */
+	public void increaseTotalBytes(View v){
+		long totalBytes = 3000L*1024L;
+		updateEnergySave(totalBytes);
+		updateTotalBytes(totalBytes);
+		G.Log("IncreaseTotalBytes: "+ String.valueOf(totalBytes));
+	}
 
 	/** Client Message Handler */
 	final Messenger mClientMessenger = new Messenger(new ClientHandler());
@@ -683,7 +705,7 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 				break;
 
 			// Messages that came from BambiEnergyService as replies
-			case BambiMessages.MESSAGE_REPLY_TOTAL_BYTES:
+			case BambiMessages.MESSAGE_REPLY_TOTAL_BYTES: {
 				Bundle bundle = msg.getData();
 				long totalBytes = bundle
 						.getLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH);
@@ -691,75 +713,103 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 				// Update the view's total number of bytes
 				updateEnergySave(totalBytes);
 				updateTotalBytes(totalBytes);
-				
-				
+
 				G.Log("MESSAGE_REPLY_TOTAL_BYTES: " + totalBytes);
 				break;
-				
+			}
+
 			// Message that BambiEnergyService has completed processing a Task
 			case BambiLib.MESSAGE_PROCESS_TASK_COMPLETE:
-				
+
 				// TODO: Get from Bambi a new set of data
 				G.Log("MESSAGE_PROCESS_TASK_COMPLETE");
-				
+
+				// Send message to get total number of bytes form
+				// BambiEnergyService
+				sendMessageToBambiService(BambiMessages.MESSAGE_GET_TOTAL_BYTES);
+
+				// Send message to get Task list form BambiEnergyService
+				sendMessageToBambiService(BambiMessages.MESSAGE_GET_TASK_LIST);
+
 				break;
-			
+
 			// Message that BambiEnergyService replies with a TaskList
-			case BambiMessages.MESSAGE_REPLY_TASK_LIST:
-				
-				// TODO: Update UI with the  new Task List
+			case BambiMessages.MESSAGE_REPLY_TASK_LIST: {
+				// TODO: Update UI with the new Task List
 				G.Log("MESSAGE_REPLY_TASK_LIST");
-				
+
+				// Get bundle data
+				Bundle bundle = msg.getData();
+
 				// Extract ArrayList<Task>
-				ArrayList<Task> replyList = (ArrayList<Task>) msg.obj;
-				
-				for (Task t : replyList) {
-					G.Log("" + t.getType());
-				}
-				
+				bundle.setClassLoader(Task.class.getClassLoader());
+				ArrayList<Task> replyList = (ArrayList<Task>) bundle
+						.getSerializable(BambiMessages.MESSAGE_REPLY_TASK_LIST_KEY);
+				updateTaskList(replyList);
 				break;
-				
+			}
+
 			default:
 				super.handleMessage(msg);
 				break;
 			}
 		}
-	}	
-	
+	}
+
+	/**
+	 * Update UI to display task list
+	 */
+	private void updateTaskList(ArrayList<Task> replyList) {
+
+		mAdapter.taskListFragment.drawTable(this, replyList);
+	}
+
 	/**
 	 * Update UI to display total bytes of data transmission
+	 * 
 	 * @param totalBytes
 	 */
-	public void updateTotalBytes(long totalBytes){
-		mAdapter.energyMeterFragment.updateTotalBytes( totalBytes);		
+	private void updateTotalBytes(long totalBytes) {
+		totalDataBytes = totalBytes;
+		mAdapter.energyMeterFragment.updateTotalBytes(totalBytes);
 	}
+	
+	/**
+	 * total data transmitted by Bambi
+	 */
+	public long totalDataBytes = 0;
 	
 	/**
 	 * Update UI to display energy save ratio for pie chart
+	 * 
 	 * @param totalByte
 	 */
-	public void updateEnergySave(long totalByte){
-			// Convert to GB
-			double totalGB = ((double)totalByte/1024)/1024;
-			
-			// Calculate energy saved percentage
-			double EnergyWifi = 17.31*(totalGB) - 2.28;
-			double Energy3G =  71.27*(totalGB) - 0.31;
-			double EnergySave = Energy3G - EnergyWifi;
-			double EnergySavePercent;
-			
-			if(totalByte==0){
-				EnergySavePercent = 0;
-			}
-			else if(EnergyWifi <=0 || Energy3G<=0){
-				EnergySavePercent = 1;
-			}else{
-				EnergySavePercent = EnergySave/Energy3G;	
-			}
-					
-			mAdapter.energyMeterFragment.updateEnergySave((int)EnergySavePercent);	
-			//this.findViewById(R.id.pager).requestLayout();
+	private void updateEnergySave(long totalByte) {
+		
+		// Convert to GB
+		double totalGB = ((double) totalByte / 1024) / 1024;
+
+		// Calculate energy saved percentage
+		double EnergyWifi = 17.31 * (totalGB) - 2.28;
+		double Energy3G = 71.27 * (totalGB) - 0.31;
+		double EnergySave = Energy3G - EnergyWifi;
+		double EnergySavePercent=0d;
+
+		if (totalByte == 0) {
+			energySavePercent = 0;
+		} else if (EnergyWifi <= 0 || Energy3G <= 0) {
+			energySavePercent = 1;
+		} else {
+			EnergySavePercent = EnergySave / Energy3G;
+			energySavePercent = (int) (EnergySavePercent*100.0);
+		}
+		
+		mAdapter.energyMeterFragment.updateEnergySaveChart(energySavePercent);
+		// this.findViewById(R.id.pager).requestLayout();
 	}
+	
+	/** Public variable of the total amount of energy saved by BambiEnergyService thus far. */
+	public int energySavePercent = 0;
 
 	/**
 	 * A placeholder fragment containing a simple view.
@@ -777,57 +827,54 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 			return rootView;
 		}
 	}
-	
+
 	/**
 	 * Implement ActionBar.TabListener Integration
 	 */
 	public void onTabReselected(Tab arg0, FragmentTransaction arg1) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void onTabSelected(Tab tab, FragmentTransaction arg1) {
-		
+
 	}
 
 	public void onTabUnselected(Tab arg0, FragmentTransaction arg1) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void onTabReselected(android.support.v7.app.ActionBar.Tab arg0,
 			FragmentTransaction arg1) {
 		// TODO Auto-generated method stub
-		
-	}
-	
 
+	}
 
 	public void onTabUnselected(android.support.v7.app.ActionBar.Tab arg0,
 			FragmentTransaction arg1) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onTabReselected(Tab arg0, android.app.FragmentTransaction arg1) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onTabSelected(Tab tab, android.app.FragmentTransaction arg1) {
 		// on tab selected
-        // show respected fragment view
-        viewPager.setCurrentItem(tab.getPosition());
-		
+		// show respected fragment view
+		viewPager.setCurrentItem(tab.getPosition());
+
 	}
 
 	@Override
 	public void onTabUnselected(Tab arg0, android.app.FragmentTransaction arg1) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
 
 }
