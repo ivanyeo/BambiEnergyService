@@ -560,7 +560,7 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 
 			// Create bundle
 			Bundle bundle = new Bundle();
-			bundle.putLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH, 6969L);
+			bundle.putLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH, 300L*1024L);
 
 			msg.setData(bundle);
 
@@ -681,10 +681,13 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 	 * increase total bytes for proof of concept
 	 */
 	public void increaseTotalBytes(View v){
-		long totalBytes = 3000L*1024L;
-		updateEnergySave(totalBytes);
-		updateTotalBytes(totalBytes);
-		G.Log("IncreaseTotalBytes: "+ String.valueOf(totalBytes));
+		// Increase baseline total bytes to 30GB
+		save_service_message(v);
+		
+		// Send message to get total number of bytes form
+		// BambiEnergyService
+		sendMessageToBambiService(BambiMessages.MESSAGE_GET_TOTAL_BYTES);
+
 	}
 
 	/** Client Message Handler */
