@@ -1,48 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#ff8400" >
-     
-    <TextView android:layout_width="fill_parent"
+    android:background="#ff8400"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Design App List Screen"
+        android:layout_gravity="center"
+        android:gravity="center|top"
+        android:text="Application using Bambi:"
         android:textSize="20dp"
-        android:layout_centerInParent="true"/>
+        android:typeface="serif" />
 
-    <Button
-        android:id="@+id/button1"
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="100dp"
+        android:layout_height="111dp"
+        android:layout_gravity="center"
+        android:src="@drawable/mail_button" />
+
+    <TextView
+        android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="36dp"
-        android:layout_marginTop="35dp"
-        android:onClick="schedule_normal_task"
-        android:text="SendNormalTask" />
+        android:layout_gravity="center"
+        android:text="Low Battery Mail App"
+        android:typeface="serif" />
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/button1"
-        android:layout_below="@+id/button1"
-        android:layout_marginTop="25dp"
-        android:onClick="schedule_task"
-        android:text="SendDeadlineTask" />
-    
-     <Button
-        android:id="@+id/button3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/button1"
-        android:layout_below="@+id/button2"
-        android:layout_marginTop="25dp"
-        android:onClick="increaseTotalBytes"
-        android:text="IncreaseTotalBytes" />
-    
- 
-</RelativeLayout>
-
+</LinearLayout>
