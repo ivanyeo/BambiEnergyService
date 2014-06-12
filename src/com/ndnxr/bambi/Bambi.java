@@ -105,6 +105,24 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 
 		// Bind to BambiEnergyService
 		bindBambiService();
+		
+		// Wait for Service to start
+		new Thread(new Runnable(){
+			@Override
+			public void run() {
+				try {
+					while (mBambiServiceMessenger == null) {
+						Thread.sleep(G.BAMBI_SERVICE_CONNECTION_WAIT_TIME);
+					}
+				} catch (InterruptedException e) {
+					G.Log("onStart(): " + e.getMessage());
+				}
+				
+				// Send message to get total number of bytes form BambiEnergyService
+				sendMessageToBambiService(BambiMessages.MESSAGE_GET_TOTAL_BYTES);
+				
+			}
+		}).start();
 	}
 
 	@Override
@@ -670,6 +688,11 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 				long totalBytes = bundle
 						.getLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH);
 
+				// Update the view's total number of bytes
+				updateEnergySave(totalBytes);
+				updateTotalBytes(totalBytes);
+				
+				
 				G.Log("MESSAGE_REPLY_TOTAL_BYTES: " + totalBytes);
 				break;
 				
@@ -701,6 +724,41 @@ public class Bambi extends FragmentActivity implements ActionBar.TabListener {
 				break;
 			}
 		}
+	}	
+	
+	/**
+	 * Update UI to display total bytes of data transmission
+	 * @param totalBytes
+	 */
+	public void updateTotalBytes(long totalBytes){
+		mAdapter.energyMeterFragment.updateTotalBytes( totalBytes);		
+	}
+	
+	/**
+	 * Update UI to display energy save ratio for pie chart
+	 * @param totalByte
+	 */
+	public void updateEnergySave(long totalByte){
+			// Convert to GB
+			double totalGB = ((double)totalByte/1024)/1024;
+			
+			// Calculate energy saved percentage
+			double EnergyWifi = 17.31*(totalGB) - 2.28;
+			double Energy3G =  71.27*(totalGB) - 0.31;
+			double EnergySave = Energy3G - EnergyWifi;
+			double EnergySavePercent;
+			
+			if(totalByte==0){
+				EnergySavePercent = 0;
+			}
+			else if(EnergyWifi <=0 || Energy3G<=0){
+				EnergySavePercent = 1;
+			}else{
+				EnergySavePercent = EnergySave/Energy3G;	
+			}
+					
+			mAdapter.energyMeterFragment.updateEnergySave((int)EnergySavePercent);	
+			//this.findViewById(R.id.pager).requestLayout();
 	}
 
 	/**
