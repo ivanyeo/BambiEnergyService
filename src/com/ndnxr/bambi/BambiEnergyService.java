@@ -42,7 +42,7 @@ public class BambiEnergyService extends Service {
 	private static final String FILENAME_NORMAL_TASKS = "FILE_NORMAL_TASKS";
 	private static final String FILENAME_SCHEDULE_TASKS = "FILE_SCHEDULE_TASKS";
 	private static final String FILENAME_CALLBACK_TASKS = "FILE_CALLBACK_TASKS";
-	
+
 	// Private Tasks to keep track of
 	private ArrayList<Task> normalTaskList = null;
 	private ArrayList<Task> scheduleTaskList = null;
@@ -54,24 +54,25 @@ public class BambiEnergyService extends Service {
 	// Private startId so that Service is not accidentally stopped when
 	// stopSelf(startId) is invoked
 	private static int startId = 0;
-	
+
 	// Private variable to mark if Wifi is connected
 	private boolean wifiConnected = false;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		//android.os.Debug.waitForDebugger();
-		
+		// android.os.Debug.waitForDebugger();
+
 		// Load Bambi Service Tasks
 		loadBambiTasks();
-		
+
 		// Check for Wifi connection
 		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo wifiNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+		NetworkInfo wifiNetworkInfo = connectivityManager
+				.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
 		if (wifiNetworkInfo.isConnected()) {
-		    // Flag that Wifi Data Transmission is possible
+			// Flag that Wifi Data Transmission is possible
 			wifiConnected = true;
 		}
 
@@ -112,19 +113,18 @@ public class BambiEnergyService extends Service {
 
 			break;
 		}
-		
+
 		// Get Intent message and check against BambiMessages
 		message = intent.getIntExtra(BambiMessages.MESSAGE_BOOT_COMPLETE, 0);
 
 		switch (message) {
 		case BambiMessages.MESSAGE_BOOT_COMPLETE_ARRIVED:
 			/***
-			 * Process Tasks that:
-			 * 		(1) have deadlines past due
-			 * 		(2) schedule AlarmManager with alarms for Tasks with deadlines in the future.
-			 * 			This is required as the AlarmManager does not keep its state between reboots 
-			 * 			of the system.
-			 *
+			 * Process Tasks that: (1) have deadlines past due (2) schedule
+			 * AlarmManager with alarms for Tasks with deadlines in the future.
+			 * This is required as the AlarmManager does not keep its state
+			 * between reboots of the system.
+			 * 
 			 * Run all these in a seperate Thread and invoke bambiStopSelf().
 			 */
 			G.Log("BambiEnergyService::onStartCommand(): MESSAGE_BOOT_COMPLETE_ARRIVED");
@@ -150,17 +150,15 @@ public class BambiEnergyService extends Service {
 		switch (message) {
 		case BambiMessages.MESSAGE_WIFI_CONNECTED_ARRIVED:
 			/***
-			 * Process Tasks in the:
-			 * 		(1) Normal List
-			 * 		(2) Schedule List
-			 *
+			 * Process Tasks in the: (1) Normal List (2) Schedule List
+			 * 
 			 * Run all these in a seperate Thread and invoke bambiStopSelf().
 			 */
 			G.Log("BambiEnergyService::onStartCommand(): MESSAGE_WIFI_CONNECTED_ARRIVED");
-			
+
 			// Flag Wifi Connected
 			wifiConnected = true;
-			
+
 			// Process Tasks
 			new Thread(new Runnable() {
 				@Override
@@ -176,24 +174,24 @@ public class BambiEnergyService extends Service {
 
 			break;
 		}
-		
 
 		// Get Intent message and check against BambiMessages
-		message = intent.getIntExtra(BambiMessages.MESSAGE_WIFI_DISCONNECTED, 0);
+		message = intent
+				.getIntExtra(BambiMessages.MESSAGE_WIFI_DISCONNECTED, 0);
 
 		switch (message) {
 		case BambiMessages.MESSAGE_WIFI_DISCONNECTED_ARRIVED:
 			G.Log("BambiEnergyService::onStartCommand(): MESSAGE_WIFI_DISCONNECTED_ARRIVED");
-			
+
 			// Flag that Wifi has disconnected
 			wifiConnected = false;
 
 			// Mark service to be stopped
 			bambiStopSelf();
-			
+
 			break;
 		}
-		
+
 		// Get Intent message and check against BambiLib
 		message = intent.getIntExtra(BambiLib.MESSAGE_STORE, 0);
 
@@ -223,9 +221,10 @@ public class BambiEnergyService extends Service {
 		// intent being re-delivered.
 		return Service.START_REDELIVER_INTENT;
 	}
-	
+
 	/**
-	 * Method that processes tasks on the normalTaskList as well as the scheduleTaskList.
+	 * Method that processes tasks on the normalTaskList as well as the
+	 * scheduleTaskList.
 	 * 
 	 */
 	private void processWifiConnected() {
@@ -236,7 +235,7 @@ public class BambiEnergyService extends Service {
 				// Process Task
 				processTask(t);
 			}
-			
+
 			// Empty the list
 			scheduleTaskList.clear();
 		}
@@ -248,23 +247,23 @@ public class BambiEnergyService extends Service {
 				// Process Task
 				processTask(t);
 			}
-			
+
 			// Empty the list
 			normalTaskList.clear();
 		}
 	}
-	
+
 	/**
-	 * Method that processes tasks on the scheduleTaskList that have the deadline
-	 * earlier or equal to the current time now.
+	 * Method that processes tasks on the scheduleTaskList that have the
+	 * deadline earlier or equal to the current time now.
 	 */
 	private void processScheduleTaskList() {
 		// Get current time
 		Date now = new Date();
-		
+
 		// Remaining Task list
 		ArrayList<Task> remainingTasks = new ArrayList<Task>();
-		
+
 		// Process Tasks
 		synchronized (scheduleTaskList) {
 			// Iterate through Tasks
@@ -277,23 +276,24 @@ public class BambiEnergyService extends Service {
 					remainingTasks.add(t);
 				}
 			}
-			
+
 			// Update scheduleTaskList
 			scheduleTaskList = remainingTasks;
 		}
 	}
-	
+
 	/**
 	 * Method that processes a given Task, based on the Task type.
 	 * 
-	 * @param task Task to be processed.
+	 * @param task
+	 *            Task to be processed.
 	 */
 	private void processTask(Task task) {
 		G.Log("processTask(): TaskType: " + task.getType());
-		
+
 		// Ensure that connection can be established
 		{
-			for (int i=0; i<G.WIFI_RETRY_COUNT; i++) {
+			for (int i = 0; i < G.WIFI_RETRY_COUNT; i++) {
 				try {
 					if (!isWifiConnected()) {
 						Thread.sleep(G.WIFI_RETRY_TIMEOUT);
@@ -305,25 +305,19 @@ public class BambiEnergyService extends Service {
 				}
 			}
 		}
-		
+
 		// Process Task according to Task type
 		switch (task.getType()) {
 		case EMAIL:
 			// Extract data
 			Email email = (Email) task.getPayload();
-			
+
 			// Create and Send Email
-			BambiMail mail = new BambiMail(
-					email.getUsername(),
-					email.getPassword(),
-					email.getServerAddress(),
-					email.getServerPort(),
-					email.getFrom(),
-					email.getToArray(),
-					email.getSubject(),
-					email.getMessage()
-					);
-			
+			BambiMail mail = new BambiMail(email.getUsername(),
+					email.getPassword(), email.getServerAddress(),
+					email.getServerPort(), email.getFrom(), email.getToArray(),
+					email.getSubject(), email.getMessage());
+
 			// Add attachments if any
 			if (email.getFilePaths().length > 0) {
 				for (String filepath : email.getFilePaths()) {
@@ -332,54 +326,57 @@ public class BambiEnergyService extends Service {
 					}
 				}
 			}
-			
+
 			// Send email
 			if (mail.sendEmail()) {
 				G.Log("BambiEnergyService::processTask(): Email sent Successfully!");
 			} else {
 				G.Log("BambiEnergyService::processTask(): Error while sendnig email.");
 			}
-			
+
 			// Update number of bytes that was sent out
 			long totalBytes = 0L;
-			
+
 			// Get number of bytes for each item
-			totalBytes += email.getFrom().length() + email.getSubject().length() + email.getMessage().length();
-			
+			totalBytes += email.getFrom().length()
+					+ email.getSubject().length() + email.getMessage().length();
+
 			for (String to : email.getToArray()) {
 				if (to != null) {
 					totalBytes += to.length();
 				}
 			}
-			
+
 			if (email.getFilePaths().length > 0) {
 				for (String filepath : email.getFilePaths()) {
 					if (filepath != null && !filepath.equals("")) {
 						File file = new File(filepath);
-						
+
 						totalBytes += file.length();
 					}
 				}
 			}
-			
+
 			// Update shared preferences
 			mUpdateTotalBytesProcessed(totalBytes);
-			
+
 			// Message connected receivers
 			mUpdateConnectedReceivers();
-			
+
 			break;
-			
+
 		default:
 			throw new RuntimeException("Invalid TASK_TYPE.");
 		}
 
 	}
-	
+
 	/**
-	 * Method thta updates the total number of bytes that passed through BambiEnergyService.
+	 * Method thta updates the total number of bytes that passed through
+	 * BambiEnergyService.
 	 * 
-	 * @param addBytes Number of bytes to be added to the master record
+	 * @param addBytes
+	 *            Number of bytes to be added to the master record
 	 */
 	private void mUpdateTotalBytesProcessed(long addBytes) {
 
@@ -399,55 +396,60 @@ public class BambiEnergyService extends Service {
 		editor.putLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH, totalBytes);
 		editor.commit();
 	}
-	
+
 	/**
-	 * Message connected receivers that new data has passed through BambiEnergyService.
+	 * Message connected receivers that new data has passed through
+	 * BambiEnergyService.
 	 */
 	private void mUpdateConnectedReceivers() {
 		if (!mClients.isEmpty()) {
-			
+
 			// Create Message
 			for (Messenger m : mClients) {
 				// Message Clients
 				try {
-					m.send(Message.obtain(null, BambiLib.MESSAGE_PROCESS_TASK_COMPLETE));
+					m.send(Message.obtain(null,
+							BambiLib.MESSAGE_PROCESS_TASK_COMPLETE));
 				} catch (RemoteException e) {
-					G.Log("mUpdateConnectedReceivers(): ERROR: " + e.getMessage());
+					G.Log("mUpdateConnectedReceivers(): ERROR: "
+							+ e.getMessage());
 				}
 			}
 		}
 	}
-	
+
 	/**
-	 * This method is invoked when the mobile device has fully booted. The AlarmManger does
-	 * not store the previous state and all processes that have a future deadline have to
-	 * set the alarm once again.
+	 * This method is invoked when the mobile device has fully booted. The
+	 * AlarmManger does not store the previous state and all processes that have
+	 * a future deadline have to set the alarm once again.
 	 * 
-	 * Method that processes:
-	 * 		(1) Tasks that are past due and 
-	 * 		(2) schedule Tasks that have deadlines in the future
+	 * Method that processes: (1) Tasks that are past due and (2) schedule Tasks
+	 * that have deadlines in the future
 	 * 
 	 */
 	private void processBootComplete() {
 		// Get current time
 		Date now = new Date();
-		
+
 		// Remaining Task list
 		ArrayList<Task> remainingTasks = new ArrayList<Task>();
-		
+
 		// Process Tasks
 		synchronized (scheduleTaskList) {
 			// Iterate through Tasks
 			for (Task t : scheduleTaskList) {
 				if (t.getDeadline().before(now)) {
 					G.Log("processBootComplete(): Deadline Missed! Running Task Now!");
-					
-					// Process in this current Thread as Service has already created a new Thread for this 
-					// method. The rationale for processing here is to prevent the current Thread from running
-					// to completion and invoking bambiStopSelf(); 
+
+					// Process in this current Thread as Service has already
+					// created a new Thread for this
+					// method. The rationale for processing here is to prevent
+					// the current Thread from running
+					// to completion and invoking bambiStopSelf();
 					processTask(t);
 				} else {
-					// (2) Schedule Task with future deadlines: Set AlarmManager to wake at that time
+					// (2) Schedule Task with future deadlines: Set AlarmManager
+					// to wake at that time
 					// Get the AlarmManager
 					AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
@@ -457,8 +459,8 @@ public class BambiEnergyService extends Service {
 					intent.putExtra(BambiMessages.MESSAGE_ALARM,
 							BambiMessages.MESSAGE_ALARM_ARRIVED);
 
-					PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
-							intent, PendingIntent.FLAG_UPDATE_CURRENT);
+					PendingIntent pendingIntent = PendingIntent.getBroadcast(
+							this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 					// Getting Calendar instance and setting the deadline
 					Calendar calendar = Calendar.getInstance();
@@ -467,13 +469,13 @@ public class BambiEnergyService extends Service {
 					alarmManager.set(AlarmManager.RTC_WAKEUP,
 							calendar.getTimeInMillis(), pendingIntent);
 
-					G.Log("BambiEnergyService::processBootComplete(): Scheduled Task with Deadline!");					
-					
+					G.Log("BambiEnergyService::processBootComplete(): Scheduled Task with Deadline!");
+
 					// Add it to remaining Task that have to be scheduled to run
 					remainingTasks.add(t);
 				}
 			}
-			
+
 			// Update scheduleTaskList
 			scheduleTaskList = remainingTasks;
 		}
@@ -616,25 +618,28 @@ public class BambiEnergyService extends Service {
 	 * an alarm if any. This function does not stop the service; it merely
 	 * schedules the Task.
 	 * 
-	 * @param task Task to be scheduled
+	 * @param task
+	 *            Task to be scheduled
 	 * 
 	 */
 	private void scheduleTask(Task task) {
-		// If Wifi connection is available, there is no point scheduling the Task
-		// or adding it to the normal Task list (to await Wifi connection). 
-		
+		// If Wifi connection is available, there is no point scheduling the
+		// Task
+		// or adding it to the normal Task list (to await Wifi connection).
+
 		// Check for Wifi connection
 		if (wifiConnected) {
 			final Task t = task;
-			
-			// Process task in a new Thread now, so as not to block the main Thread.
-			new Thread(new Runnable(){
+
+			// Process task in a new Thread now, so as not to block the main
+			// Thread.
+			new Thread(new Runnable() {
 				@Override
 				public void run() {
 					processTask(t);
 				}
 			}).start();
-			
+
 			return;
 		}
 
@@ -667,7 +672,7 @@ public class BambiEnergyService extends Service {
 			break;
 		case NORMAL:
 			// Add Task to the Normal Task list ... i.e waiting for Wifi
-			normalTaskList.add(task);	
+			normalTaskList.add(task);
 
 			G.Log("BambiEnergyService::scheduleTask() NORMAL Task.");
 			break;
@@ -710,12 +715,13 @@ public class BambiEnergyService extends Service {
 		// Invoke stop
 		BambiEnergyService.this.stopSelf(startId);
 	}
-	
+
 	/**
-	 * Checks the NetworkInfo to see if Wifi is connected and data can be sent out
-	 * through the Wifi connection. 
+	 * Checks the NetworkInfo to see if Wifi is connected and data can be sent
+	 * out through the Wifi connection.
 	 * 
-	 * @return Returns true when wifi data transmission is possible; false otherwise.
+	 * @return Returns true when wifi data transmission is possible; false
+	 *         otherwise.
 	 */
 	private boolean isWifiConnected() {
 		// Check for Wifi connection
@@ -768,38 +774,52 @@ public class BambiEnergyService extends Service {
 				}
 				break;
 
-			case BambiLib.MESSAGE_SEND_EMAIL:
-				G.Log("WE GET TO SEND THE EMAIL!!");
+			case BambiLib.MESSAGE_SEND_EMAIL: {
 				// Extract Email object through IPC
 				// Set class loader to be used
-				msg.getData().setClassLoader(Email.class.getClassLoader());
+				msg.getData().setClassLoader(Task.class.getClassLoader());
 
 				// Get actual Email object
-				Email email = (Email) msg.getData().getParcelable("email");
+				final Task task = (Task) msg.getData().getParcelable(
+						BambiLib.MESSAGE_TASK);
 
-				G.Log("BAMBISERVICE, Email: " + email.toString());
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						// Process Task
+						processTask(task);
+					}
+				}).start();
+
+				G.Log("BambiServiceHandler::handleMessage(): MESSAGE_SEND_EMAIL Done!");
 				break;
-				
-			case BambiMessages.MESSAGE_GET_TOTAL_BYTES:
-			{
+			}
+
+			case BambiMessages.MESSAGE_GET_TOTAL_BYTES: {
 				G.Log("BambiServiceHandler: MESSAGE_GET_TOTAL_CHARS");
-				
+
 				// Get from SharedPreferences
-				SharedPreferences sharedPref = BambiEnergyService.this.getApplicationContext().getSharedPreferences(G.ENERGY_SERVICE_PREFERENCE_FILE_KEY, Context.MODE_PRIVATE);
-				long totalBytes = sharedPref.getLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH, (long) 0);
-				
+				SharedPreferences sharedPref = BambiEnergyService.this
+						.getApplicationContext().getSharedPreferences(
+								G.ENERGY_SERVICE_PREFERENCE_FILE_KEY,
+								Context.MODE_PRIVATE);
+				long totalBytes = sharedPref.getLong(
+						G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH, (long) 0);
+
 				// Reply to client
 				try {
 					// Get a Message from the System
-					Message replyMessage = Message.obtain(null, BambiMessages.MESSAGE_REPLY_TOTAL_BYTES);
-					
+					Message replyMessage = Message.obtain(null,
+							BambiMessages.MESSAGE_REPLY_TOTAL_BYTES);
+
 					// Create a bundle
 					Bundle bundle = new Bundle();
-					bundle.putLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH, totalBytes);
-					
+					bundle.putLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH,
+							totalBytes);
+
 					// Put bundle along with the message
 					replyMessage.setData(bundle);
-					
+
 					// Send Message
 					msg.replyTo.send(replyMessage);
 				} catch (RemoteException e) {
@@ -808,30 +828,34 @@ public class BambiEnergyService extends Service {
 				}
 				break;
 			}
-			
-			case BambiMessages.MESSAGE_SAVE_TOTAL_BYTES:
-			{
+
+			case BambiMessages.MESSAGE_SAVE_TOTAL_BYTES: {
 				G.Log("BambiServiceHandler: MESSAGE_SAVE_TOTAL_BYTES");
-				
+
 				// Get from SharedPreferences
-				SharedPreferences sharedPref = BambiEnergyService.this.getApplicationContext().getSharedPreferences(G.ENERGY_SERVICE_PREFERENCE_FILE_KEY, Context.MODE_PRIVATE);
+				SharedPreferences sharedPref = BambiEnergyService.this
+						.getApplicationContext().getSharedPreferences(
+								G.ENERGY_SERVICE_PREFERENCE_FILE_KEY,
+								Context.MODE_PRIVATE);
 				SharedPreferences.Editor editor = sharedPref.edit();
-				
+
 				// Get bundle
 				Bundle bundle = msg.getData();
-				long totalBytes = bundle.getLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH);
-				editor.putLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH, totalBytes);
+				long totalBytes = bundle
+						.getLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH);
+				editor.putLong(G.ENERGY_SERVICE_TOTAL_BYTES_PASSED_THROUGH,
+						totalBytes);
 				editor.commit();
-				
-				G.Log("BambiServiceHandler: MESSAGE_SAVE_TOTAL_BYTES: " + totalBytes);
+
+				G.Log("BambiServiceHandler: MESSAGE_SAVE_TOTAL_BYTES: "
+						+ totalBytes);
 				break;
 			}
-			
-			case BambiMessages.MESSAGE_GET_TASK_LIST:
-			{
+
+			case BambiMessages.MESSAGE_GET_TASK_LIST: {
 				// Build new TaskList
 				ArrayList<Task> replyList = new ArrayList<Task>();
-				
+
 				synchronized (scheduleTaskList) {
 					if (!scheduleTaskList.isEmpty()) {
 						for (Task t : scheduleTaskList) {
@@ -839,7 +863,7 @@ public class BambiEnergyService extends Service {
 						}
 					}
 				}
-				
+
 				synchronized (normalTaskList) {
 					if (!normalTaskList.isEmpty()) {
 						for (Task t : normalTaskList) {
@@ -847,15 +871,16 @@ public class BambiEnergyService extends Service {
 						}
 					}
 				}
-				
+
 				// Reply to client
 				try {
 					// Get a Message from the System
-					Message replyMessage = Message.obtain(null, BambiMessages.MESSAGE_REPLY_TASK_LIST);
-					
+					Message replyMessage = Message.obtain(null,
+							BambiMessages.MESSAGE_REPLY_TASK_LIST);
+
 					// Set parcelable object
 					replyMessage.obj = replyList;
-					
+
 					// Send Message
 					msg.replyTo.send(replyMessage);
 				} catch (RemoteException e) {
@@ -864,7 +889,7 @@ public class BambiEnergyService extends Service {
 				}
 				break;
 			}
-			
+
 			default:
 				// Pass on to the super class
 				super.handleMessage(msg);
@@ -881,12 +906,14 @@ public class BambiEnergyService extends Service {
 		// Save array lists
 		saveArrayListToFile(FILENAME_NORMAL_TASKS, normalTaskList);
 		saveArrayListToFile(FILENAME_SCHEDULE_TASKS, scheduleTaskList);
-		saveArrayListToFile(FILENAME_CALLBACK_TASKS, awaitingSignalStrengthCallbackList);
+		saveArrayListToFile(FILENAME_CALLBACK_TASKS,
+				awaitingSignalStrengthCallbackList);
 	}
 
 	private void saveArrayListToFile(String filename, ArrayList<Task> list) {
 		try {
-			FileOutputStream fos = this.openFileOutput(filename, Context.MODE_PRIVATE);
+			FileOutputStream fos = this.openFileOutput(filename,
+					Context.MODE_PRIVATE);
 			ObjectOutputStream os = new ObjectOutputStream(fos);
 
 			os.writeObject(list);
@@ -939,17 +966,17 @@ public class BambiEnergyService extends Service {
 			} catch (ClassNotFoundException e) {
 				G.Log(e.getMessage());
 			}
-			
+
 			G.Log("loadArrayListFromFile(): READ FILE: " + filename);
 		} else {
 			// Create an empty list
 			list = new ArrayList<Task>();
-			
+
 			G.Log("loadArrayListFromFile(): EMPTY LIST");
 		}
 
 		G.Log("loadArrayListFromFile(): Done!");
-		
+
 		return list;
 	}
 }
