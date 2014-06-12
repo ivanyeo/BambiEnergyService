@@ -14,23 +14,23 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
  
     public TabsPagerAdapter(FragmentManager fm) {
         super(fm);
+        // energy meter fragment activity
+        energyMeterFragment = new EnergyMeterFragment();
+        // task list fragment activity
+    	taskListFragment = new TaskListFragment();
+    	// app list fragment activity
+    	appListFragment = new AppListFragment();
     }
  
     @Override
     public Fragment getItem(int index) {
  
         switch (index) {
-        case 0:
-            // Top Rated fragment activity
-            energyMeterFragment = new EnergyMeterFragment();
+        case 0:          
             return energyMeterFragment;
-        case 1:
-            // Games fragment activity
-        	taskListFragment = new TaskListFragment();
+        case 1:          
             return taskListFragment;
-        case 2:
-            // Movies fragment activity
-        	appListFragment = new AppListFragment();
+        case 2:         
             return appListFragment;
         }
  
