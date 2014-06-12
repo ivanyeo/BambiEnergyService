@@ -875,18 +875,23 @@ public class BambiEnergyService extends Service {
 				// Reply to client
 				try {
 					// Get a Message from the System
-					Message replyMessage = Message.obtain(null,
-							BambiMessages.MESSAGE_REPLY_TASK_LIST);
-
-					// Set parcelable object
-					replyMessage.obj = replyList;
-
+					Message replyMessage = Message.obtain(null, BambiMessages.MESSAGE_REPLY_TASK_LIST);
+					
+					// Create bundle
+					Bundle bundle = new Bundle();
+					bundle.putSerializable(BambiMessages.MESSAGE_REPLY_TASK_LIST_KEY, replyList);
+					
+					// Attach to message
+					replyMessage.setData(bundle);
+					
 					// Send Message
 					msg.replyTo.send(replyMessage);
 				} catch (RemoteException e) {
 					// Client dead
 					mClients.remove(msg.replyTo);
 				}
+				
+				G.Log("MESSAGE_GET_TASK_LIST:: DONE!");
 				break;
 			}
 
