@@ -40,5 +40,6 @@ public class BambiMessages {
 	// Getting of ArrayList<Task> from BambiEnergyService
 	public static final int MESSAGE_GET_TASK_LIST = 7;
 	public static final int MESSAGE_REPLY_TASK_LIST = 8;
+	public static final String MESSAGE_REPLY_TASK_LIST_KEY = "TASK_ARRAY_LIST";
 	
 }
